@@ -9,9 +9,11 @@ UI_DIR = ./build
 
 HEADERS +=\
     main_window.h\
+    environment.h\
 
 SOURCES +=\
     main.cpp\
     main_window.cpp\
+    environment.cpp\
 
 FORMS += main_window.ui\
