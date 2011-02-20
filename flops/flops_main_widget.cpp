@@ -5,12 +5,12 @@ FlopsMainWidget::FlopsMainWidget(QWidget *parent)
 {
     ui.setupUi(this);
 
-    _data.append(QPointF(0.0, 0.0));
+    ui.workSizeTimePlot->setAxisTitle(0, "Time");
+    ui.workSizeTimePlot->setAxisTitle(2, "Workgroup size");
 
     _curve = new QwtPlotCurve("curve");
     _curve->setData(_data);
     _curve->attach(ui.workSizeTimePlot);
-    //ui.workSizeTimePlot->replot();
 }
 
 FlopsMainWidget::~FlopsMainWidget()
