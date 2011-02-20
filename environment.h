@@ -54,8 +54,10 @@ class Environment
         QMap<QString, cl_device_id> getDevicesMap();
         static cl_uint getDevicesNumber(cl_platform_id platform,
                 cl_device_type type = CL_DEVICE_TYPE_ALL);
-        QString getDeviceName(cl_device_id device);
         void setDevice(cl_device_id device);
+
+        QString getDeviceName(cl_device_id device);
+        size_t getDeviceMaxWorkGroupSize();
 
         // Platform methods:
         cl_platform_id getCurrentPlatform();

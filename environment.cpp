@@ -172,6 +172,14 @@ QString Environment::getDeviceName(cl_device_id device)
     return result;
 }
 
+size_t Environment::getDeviceMaxWorkGroupSize()
+{
+    size_t result;
+    CHECK_ERR(clGetDeviceInfo(_currentDevice, CL_DEVICE_MAX_WORK_GROUP_SIZE, 
+                sizeof(size_t), &result, NULL));
+    return result;
+}
+
 // Platforms:
 // ----------------------------------------------------------------------------
 

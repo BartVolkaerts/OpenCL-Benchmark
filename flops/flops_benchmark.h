@@ -2,6 +2,7 @@
 #define FLOPS_BENCHMARK_H
 #include "../environment.h"
 #include "../base_benchmark.h"
+#include "flops_main_widget.h"
 
 #ifdef __APPLE__
 #   include <OpenCL/opencl.h>
@@ -11,6 +12,7 @@
 #include <string>
 #include <sys/time.h>
 #include <QWidget>
+#include <QMap>
 
 class FlopsBenchmark
     : public BaseBenchmark
@@ -32,10 +34,11 @@ class FlopsBenchmark
 
     protected:
         void checkError(cl_int error, std::string function);
-        size_t readFile(std::string filename, char **source);
-        void printBuildLog();
         double timeDiff(const struct timespec &end,
                 const struct timespec &begin);
+
+        double runKernel(size_t globalWorkSize);
+        void showResults();
 
     private:
         cl_kernel _kernel;
@@ -47,7 +50,9 @@ class FlopsBenchmark
         Environment *_environment;
 
         QWidget *_configWidget;
-        QWidget *_mainWidget;
+        FlopsMainWidget *_mainWidget;
+
+        QMap<size_t, double> _results;
 
 };
 #endif // FLOPS_BENCHMARK_H

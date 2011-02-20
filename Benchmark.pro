@@ -13,6 +13,7 @@ HEADERS +=\
     environment.h\
     base_benchmark.h\
     flops/flops_benchmark.h\
+    flops/flops_main_widget.h\
 
 SOURCES +=\
     main.cpp\
@@ -20,5 +21,7 @@ SOURCES +=\
     environment.cpp\
     base_benchmark.cpp\
     flops/flops_benchmark.cpp\
+    flops/flops_main_widget.cpp\
 
 FORMS += main_window.ui\
+    flops/flops_main_widget.ui\
