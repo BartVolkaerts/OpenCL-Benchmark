@@ -36,16 +36,18 @@ class Environment
         Environment(QObject *parent = 0);
         virtual ~Environment();
 
-        // Program:
+        // Program methods:
         void createProgram(QStringList filenames);
         cl_kernel getKernel(QString name);
 
         // Command Queue methods:
+        cl_command_queue getCommandQueue();
         void createCommandQueue();
 
         // Context methods:
         void createContext();
         void createGLContext();
+        cl_context getContext();
 
         // Device methods:
         cl_device_id getCurrentDevice();

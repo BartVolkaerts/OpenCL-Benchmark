@@ -14,7 +14,7 @@ Environment::~Environment()
 }
 
 // Program:
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 cl_kernel Environment::getKernel(QString name)
 {
@@ -72,11 +72,11 @@ void Environment::printBuildLog()
     char *log;
     size_t size;
 
-    clGetProgramBuildInfo(_program, _currentDevice, CL_PROGRAM_BUILD_LOG, 0, NULL,
-            &size);
+    clGetProgramBuildInfo(_program, _currentDevice, CL_PROGRAM_BUILD_LOG, 0,
+            NULL, &size);
     log = new char[size + 1];
-    clGetProgramBuildInfo(_program, _currentDevice, CL_PROGRAM_BUILD_LOG, size, log,
-            NULL);
+    clGetProgramBuildInfo(_program, _currentDevice, CL_PROGRAM_BUILD_LOG,
+            size, log, NULL);
     log[size] = '\0';
     qFatal("Build log:\n%s\n", log);
     free(log);
@@ -84,7 +84,12 @@ void Environment::printBuildLog()
 
 
 // Command Queue:
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+cl_command_queue Environment::getCommandQueue()
+{
+    return _commandQueue;
+}
 
 void Environment::createCommandQueue()
 {
@@ -94,7 +99,7 @@ void Environment::createCommandQueue()
 }
 
 // Context:
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 void Environment::createContext()
 {
@@ -110,8 +115,13 @@ void Environment::createGLContext()
     // TODO: Implement function
 }
 
+cl_context Environment::getContext()
+{
+    return _context;
+}
+
 // Devices:
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 cl_device_id Environment::getCurrentDevice()
 {
@@ -163,7 +173,7 @@ QString Environment::getDeviceName(cl_device_id device)
 }
 
 // Platforms:
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 cl_platform_id Environment::getCurrentPlatform()
 {

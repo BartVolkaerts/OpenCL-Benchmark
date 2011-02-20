@@ -1,5 +1,6 @@
 #include "main_window.h"
-#include "environment.h"
+
+#include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -15,8 +16,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui.deviceBox, SIGNAL(currentIndexChanged(const QString &)),
             this, SLOT(deviceBoxChanged(const QString &)));
 
-    //_environment->createContext();
-    //_environment->createCommandQueue();
+    _environment->createContext();
+    _environment->createCommandQueue();
+    _benchmark = new FlopsBenchmark(_environment, this);
+
+    ui.benchmarkWidget->setWidget(_benchmark->getConfigWidget());
+    ui.centralwidget->setLayout(new QVBoxLayout());
+    ui.centralwidget->layout()->addWidget(_benchmark->getMainWidget());
+
+    connect(ui.startButton, SIGNAL(clicked()),
+            _benchmark, SLOT(execute()));
 }
 
 MainWindow::~MainWindow()
@@ -26,34 +35,28 @@ MainWindow::~MainWindow()
 
 void MainWindow::setDevicesBox()
 {
-    qDebug() << 1;
     ui.deviceBox->clear();
     QString currentText(ui.deviceBox->currentText());
     ui.deviceBox->addItems(_devices.keys());
     deviceBoxChanged(currentText);
-    qDebug() << currentText;
 }
 
 void MainWindow::setPlatformBox()
 {
-    qDebug() << 2;
     ui.platformBox->clear();
     QString currentText(ui.platformBox->currentText());
     ui.platformBox->addItems(_platforms.keys());
     platformBoxChanged(_platforms.keys()[0]);
-    qDebug() << _platforms.keys()[0];
 }
 
 void MainWindow::platformBoxChanged(const QString &currentIndex)
 {
-    qDebug() << 3;
     _environment->setPlatform(_platforms[currentIndex]);
     _devices = _environment->getDevicesMap();
     setDevicesBox();
 }
 
-void MainWindow::deviceBoxChanged(const QString &currentIndex)
+void MainWindow::deviceBoxChanged(const QString &)
 {
-    qDebug() << 4;
-    _environment->setDevice(_devices[currentIndex]);
+    _environment->setDevice(_devices[ui.deviceBox->currentText()]);
 }
