@@ -10,15 +10,21 @@ FlopsBenchmark::FlopsBenchmark(Environment *environment, QObject *parent)
 {
     _environment = environment;
 
-    _environment->createProgram(QStringList("flops/kernel.cl"));
-    _kernel = _environment->getKernel("add");
-
     _mainWidget = new FlopsMainWidget;
     _configWidget = new QLabel("ConfigWidget");
-
 }
 
 FlopsBenchmark::~FlopsBenchmark()
+{
+}
+
+void FlopsBenchmark::initCL()
+{
+    _environment->createProgram(QStringList("flops/kernel.cl"));
+    _kernel = _environment->getKernel("add");
+}
+
+void FlopsBenchmark::releaseCL()
 {
     clReleaseMemObject(_deviceInput);
     clReleaseMemObject(_deviceOutput);
@@ -37,6 +43,8 @@ QWidget *FlopsBenchmark::getMainWidget()
 
 void FlopsBenchmark::execute()
 {
+    initCL();
+
     float hostData[1000000];
     setData(hostData, 1000000);
 
@@ -51,6 +59,7 @@ void FlopsBenchmark::execute()
     }
     showResults();
 
+    releaseCL();
 }
 
 double FlopsBenchmark::runKernel(size_t globalWorkSize)
@@ -115,4 +124,9 @@ double FlopsBenchmark::timeDiff(const struct timespec &end,
 {
     return (double)(end.tv_sec - begin.tv_sec) +
         ((double)(end.tv_nsec - begin.tv_nsec) * 1e-9);
+}
+
+QString FlopsBenchmark::getName()
+{
+    return QString("Flops");
 }

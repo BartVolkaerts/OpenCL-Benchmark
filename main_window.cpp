@@ -18,19 +18,41 @@ MainWindow::MainWindow(QWidget *parent)
 
     _environment->createContext();
     _environment->createCommandQueue();
-    _benchmark = new FlopsBenchmark(_environment, this);
 
-    ui.benchmarkWidget->setWidget(_benchmark->getConfigWidget());
+    _benchmarks.insert(FlopsBenchmark::getName(),
+            new FlopsBenchmark(_environment, this));
+
+    ui.benchmarkList->addItems(_benchmarks.keys());
     ui.centralwidget->setLayout(new QVBoxLayout());
-    ui.centralwidget->layout()->addWidget(_benchmark->getMainWidget());
 
+    setBenchmarkWidgets(FlopsBenchmark::getName());
+
+    connect(ui.benchmarkList, SIGNAL(currentTextChanged(const QString &)),
+            this, SLOT(setBenchmarkWidgets(const QString &)));
     connect(ui.startButton, SIGNAL(clicked()),
-            _benchmark, SLOT(execute()));
+            this, SLOT(launchBenchmark()));
 }
 
 MainWindow::~MainWindow()
 {
 
+}
+
+void MainWindow::setBenchmarkWidgets(const QString &benchmark)
+{
+    ui.benchmarkWidget->setWidget(_benchmarks[benchmark]->getConfigWidget());
+    QLayoutItem *currentWidget = ui.centralwidget->layout()->itemAt(0);
+    if (currentWidget)
+        ui.centralwidget->layout()->removeItem(currentWidget);
+    ui.centralwidget->layout()->addWidget(
+            _benchmarks[benchmark]->getMainWidget());
+}
+
+void MainWindow::launchBenchmark()
+{
+    BaseBenchmark *benchmark = getSelectedBenchmark();
+    if (benchmark)
+        benchmark->execute();
 }
 
 void MainWindow::setDevicesBox()
@@ -59,4 +81,13 @@ void MainWindow::platformBoxChanged(const QString &currentIndex)
 void MainWindow::deviceBoxChanged(const QString &)
 {
     _environment->setDevice(_devices[ui.deviceBox->currentText()]);
+}
+
+BaseBenchmark *MainWindow::getSelectedBenchmark()
+{
+    QListWidgetItem *currentItem = ui.benchmarkList->currentItem();
+    if (currentItem)
+        return _benchmarks[currentItem->text()];
+    else
+        return NULL;
 }

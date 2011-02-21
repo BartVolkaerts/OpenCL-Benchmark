@@ -29,6 +29,8 @@ class FlopsBenchmark
         QWidget *getConfigWidget();
         QWidget *getMainWidget();
 
+        static QString getName();
+
     public slots:
         void execute();
 
@@ -39,6 +41,8 @@ class FlopsBenchmark
 
         double runKernel(size_t globalWorkSize);
         void showResults();
+        void initCL();
+        void releaseCL();
 
     private:
         cl_kernel _kernel;

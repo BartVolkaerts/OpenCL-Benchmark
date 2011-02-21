@@ -7,6 +7,7 @@
 #include "flops/flops_benchmark.h"
 
 #include <QMainWindow>
+#include <QVector>
 
 class MainWindow
     : public QMainWindow
@@ -24,12 +25,17 @@ class MainWindow
     protected slots:
         void platformBoxChanged(const QString &currentIndex);
         void deviceBoxChanged(const QString &currentIndex);
+        void launchBenchmark();
+        void setBenchmarkWidgets(const QString &benchmark);
+
+    private:
+        BaseBenchmark *getSelectedBenchmark();
 
 
     private:
         Ui::MainWindow ui;
         Environment *_environment;
-        BaseBenchmark *_benchmark;
+        QMap<QString, BaseBenchmark *> _benchmarks;
 
         QMap<QString, cl_platform_id> _platforms;
         QMap<QString, cl_device_id> _devices;
