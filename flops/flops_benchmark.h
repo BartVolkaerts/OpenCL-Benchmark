@@ -20,7 +20,7 @@ class FlopsBenchmark
     Q_OBJECT
 
     public:
-        FlopsBenchmark(Environment *environment, QObject *parent = 0);
+        FlopsBenchmark(Environment *environment, QWidget *parent = 0);
         virtual ~FlopsBenchmark();
 
         void setData(float *input, int size);

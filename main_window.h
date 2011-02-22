@@ -21,6 +21,7 @@ class MainWindow
     protected:
         void setPlatformBox();
         void setDevicesBox();
+        void addBenchmark(const QString &name, BaseBenchmark *benchmark);
 
     protected slots:
         void platformBoxChanged(const QString &currentIndex);
@@ -39,6 +40,8 @@ class MainWindow
 
         QMap<QString, cl_platform_id> _platforms;
         QMap<QString, cl_device_id> _devices;
+
+        BaseBenchmark *_currentBenchmark;
 
 };
 #endif // MAINWINDOW
