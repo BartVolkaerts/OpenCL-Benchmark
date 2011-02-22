@@ -1,10 +1,10 @@
 #ifndef MAIN_WINDOW_H
 #define MAIN_WINDOW_H
 #include "ui_main_window.h"
-#include "flops/flops_benchmark.h"
 #include "environment.h"
 #include "base_benchmark.h"
 #include "flops/flops_benchmark.h"
+#include "readwrite/read_write_benchmark.h"
 
 #include <QMainWindow>
 #include <QVector>

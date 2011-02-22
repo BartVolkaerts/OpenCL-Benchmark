@@ -21,11 +21,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     _benchmarks.insert(FlopsBenchmark::getName(),
             new FlopsBenchmark(_environment, this));
+    _benchmarks.insert(Read_Write_Benchmark::getName(),
+            new Read_Write_Benchmark(_environment, this));
 
     ui.benchmarkList->addItems(_benchmarks.keys());
     ui.centralwidget->setLayout(new QVBoxLayout());
 
-    setBenchmarkWidgets(FlopsBenchmark::getName());
+    //setBenchmarkWidgets(FlopsBenchmark::getName());
 
     connect(ui.benchmarkList, SIGNAL(currentTextChanged(const QString &)),
             this, SLOT(setBenchmarkWidgets(const QString &)));
