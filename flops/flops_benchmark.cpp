@@ -5,13 +5,13 @@
 #include <QLabel>
 #include <iostream>
 
-FlopsBenchmark::FlopsBenchmark(Environment *environment, QObject *parent)
+FlopsBenchmark::FlopsBenchmark(Environment *environment, QWidget *parent)
     : BaseBenchmark(environment, parent)
 {
     _environment = environment;
 
-    _mainWidget = new FlopsMainWidget;
-    _configWidget = new QLabel("ConfigWidget");
+    _mainWidget = new FlopsMainWidget(parent);
+    _configWidget = new QLabel("ConfigWidget", parent);
 }
 
 FlopsBenchmark::~FlopsBenchmark()

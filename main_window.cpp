@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui.setupUi(this);
     _environment = new Environment(this);
+    _currentBenchmark = NULL;
 
     _platforms = _environment->getPlatformsMap();
     setPlatformBox();
@@ -19,7 +20,9 @@ MainWindow::MainWindow(QWidget *parent)
     _environment->createContext();
     _environment->createCommandQueue();
 
-    _benchmarks.insert(FlopsBenchmark::getName(),
+    addBenchmark(FlopsBenchmark::getName(),
+            new FlopsBenchmark(_environment, this));
+    addBenchmark("Flops2",
             new FlopsBenchmark(_environment, this));
 
     ui.benchmarkList->addItems(_benchmarks.keys());
@@ -38,14 +41,37 @@ MainWindow::~MainWindow()
 
 }
 
+void MainWindow::addBenchmark(const QString &name, BaseBenchmark *benchmark)
+{
+    _benchmarks.insert(name, benchmark);
+    benchmark->getMainWidget()->setVisible(false);
+    benchmark->getConfigWidget()->setVisible(false);
+}
+
 void MainWindow::setBenchmarkWidgets(const QString &benchmark)
 {
+    // Make previous invisible
+    if (_currentBenchmark)
+    {
+        _currentBenchmark->getMainWidget()->setVisible(false);
+        _currentBenchmark->getConfigWidget()->setVisible(false);
+    }
+
+    // Set current benchmark
+    _currentBenchmark = _benchmarks[benchmark];
     ui.benchmarkWidget->setWidget(_benchmarks[benchmark]->getConfigWidget());
+
+    // Remove previous widget
     QLayoutItem *currentWidget = ui.centralwidget->layout()->itemAt(0);
     if (currentWidget)
+    {
         ui.centralwidget->layout()->removeItem(currentWidget);
+    }
     ui.centralwidget->layout()->addWidget(
             _benchmarks[benchmark]->getMainWidget());
+
+    _currentBenchmark->getMainWidget()->setVisible(true);
+    _currentBenchmark->getConfigWidget()->setVisible(true);
 }
 
 void MainWindow::launchBenchmark()
@@ -85,9 +111,5 @@ void MainWindow::deviceBoxChanged(const QString &)
 
 BaseBenchmark *MainWindow::getSelectedBenchmark()
 {
-    QListWidgetItem *currentItem = ui.benchmarkList->currentItem();
-    if (currentItem)
-        return _benchmarks[currentItem->text()];
-    else
-        return NULL;
+        return _currentBenchmark;
 }

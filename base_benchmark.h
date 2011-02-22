@@ -10,7 +10,7 @@ class BaseBenchmark
     Q_OBJECT
 
     public:
-        BaseBenchmark(Environment *environment, QObject *parent = 0);
+        BaseBenchmark(Environment *environment, QWidget *parent = 0);
         virtual ~BaseBenchmark();
 
         virtual QWidget *getConfigWidget();
