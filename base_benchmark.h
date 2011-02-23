@@ -13,8 +13,8 @@ class BaseBenchmark
         BaseBenchmark(Environment *environment, QWidget *parent = 0);
         virtual ~BaseBenchmark();
 
-        virtual QWidget *getConfigWidget();
-        virtual QWidget *getMainWidget();
+        virtual QWidget *getConfigWidget() = 0;
+        virtual QWidget *getMainWidget() = 0;
 
     public slots:
         virtual void execute() = 0;

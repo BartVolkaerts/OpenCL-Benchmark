@@ -1,4 +1,5 @@
 #include "flops_main_widget.h"
+#include <qwt_scale_engine.h>
 
 FlopsMainWidget::FlopsMainWidget(QWidget *parent)
     : QWidget(parent)
@@ -7,6 +8,7 @@ FlopsMainWidget::FlopsMainWidget(QWidget *parent)
 
     ui.workSizeTimePlot->setAxisTitle(0, "Time");
     ui.workSizeTimePlot->setAxisTitle(2, "Workgroup size");
+    ui.workSizeTimePlot->setAxisScaleEngine(2, new QwtLog10ScaleEngine());
 
     _curve = new QwtPlotCurve("curve");
     _curve->setData(_data);

@@ -15,24 +15,35 @@
 #include <sys/time.h>
 #include <time.h>
 
-class Read_Write_Benchmark
+class ReadWriteBenchmark
         : public BaseBenchmark
 {
         Q_OBJECT
 
         public:
-            Read_Write_Benchmark(Environment *environment, QObject *parent = 0);
-            virtual ~Read_Write_Benchmark();
+            ReadWriteBenchmark(Environment *environment,
+                    QWidget *parent = 0);
+            virtual ~ReadWriteBenchmark();
 
             static QString getName();
+            QWidget *getConfigWidget();
+            QWidget *getMainWidget();
 
         public slots:
             void execute();
 
         protected:
-
+            void initCL();
+            void releaseCL();
+            void createRandomDataOnHost();
 
         private:
+            cl_kernel _kernel;
+
+            QWidget *_mainWidget;
+            QWidget *_configWidget;
+
+            char *_data;
 
 
 };
