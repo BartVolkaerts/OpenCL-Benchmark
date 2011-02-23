@@ -55,7 +55,7 @@ void FlopsBenchmark::execute()
     _results.clear();
     for (size_t i = 1; i <= _environment->getDeviceMaxWorkGroupSize(); i*=2)
     {
-        _results[i] = runKernel(i);
+        _results[i] = 1000000*3/runKernel(i);
     }
     showResults();
 
