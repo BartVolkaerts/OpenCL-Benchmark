@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
             new FlopsBenchmark(_environment, this));
     addBenchmark("Flops2",
             new FlopsBenchmark(_environment, this));
-    _benchmarks.insert(Read_Write_Benchmark::getName(),
+    addBenchmark(Read_Write_Benchmark::getName(),
             new Read_Write_Benchmark(_environment, this));
 
     ui.benchmarkList->addItems(_benchmarks.keys());

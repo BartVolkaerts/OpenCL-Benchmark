@@ -21,10 +21,13 @@ class Read_Write_Benchmark
         Q_OBJECT
 
         public:
-            Read_Write_Benchmark(Environment *environment, QObject *parent = 0);
+            Read_Write_Benchmark(Environment *environment,
+                    QWidget *parent = 0);
             virtual ~Read_Write_Benchmark();
 
             static QString getName();
+            QWidget *getConfigWidget();
+            QWidget *getMainWidget();
 
         public slots:
             void execute();
@@ -33,6 +36,8 @@ class Read_Write_Benchmark
 
 
         private:
+            QWidget *_mainWidget;
+            QWidget *_configWidget;
 
 
 };

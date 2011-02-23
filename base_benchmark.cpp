@@ -10,13 +10,3 @@ BaseBenchmark::BaseBenchmark(Environment *environment, QWidget *parent)
 BaseBenchmark::~BaseBenchmark()
 {
 }
-
-QWidget *BaseBenchmark::getConfigWidget()
-{
-    return new QLabel("Configuration");
-}
-
-QWidget *BaseBenchmark::getMainWidget()
-{
-    return new QLabel("MainWidget");
-}
