@@ -1,4 +1,4 @@
-__kernel void test()
+__kernel void go()
 {
 
 }

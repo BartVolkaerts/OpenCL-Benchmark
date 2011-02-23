@@ -2,37 +2,57 @@
 
 #include <QLabel>
 
-Read_Write_Benchmark::Read_Write_Benchmark(Environment *environment,
+ReadWriteBenchmark::ReadWriteBenchmark(Environment *environment,
         QWidget *parent)
     : BaseBenchmark(environment, parent)
 {
-    _mainWidget = new QLabel("Main Widget", parent);
-    _configWidget = new QLabel("Config Widget", parent);
+    _mainWidget = new QLabel("Hier komt mijn widget", parent);
+    _configWidget = new QLabel("ConfigWidget", parent);
 
 }
 
-Read_Write_Benchmark::~Read_Write_Benchmark()
+ReadWriteBenchmark::~ReadWriteBenchmark()
 {
 
 }
 
-void Read_Write_Benchmark::execute()
+void ReadWriteBenchmark::execute()
 {
+    initCL();
+    createRandomDataOnHost();
+    releaseCL();
+}
 
+void ReadWriteBenchmark::createRandomDataOnHost()
+{
+    _data = new char[1000];
+    memset((void *)_data, 0, 1000);
+    std::cerr << "Clicked";
+}
+
+void ReadWriteBenchmark::initCL()
+{
+    _environment->createProgram(QStringList("readwrite/kernel.cl"));
+    _kernel = _environment->getKernel("go");
+}
+
+void ReadWriteBenchmark::releaseCL()
+{
+    clReleaseKernel(_kernel);
 }
 
 
-QWidget *Read_Write_Benchmark::getConfigWidget()
+QWidget *ReadWriteBenchmark::getConfigWidget()
 {
     return _configWidget;
 }
 
-QWidget *Read_Write_Benchmark::getMainWidget()
+QWidget *ReadWriteBenchmark::getMainWidget()
 {
     return _mainWidget;
 }
 
-QString Read_Write_Benchmark::getName()
+QString ReadWriteBenchmark::getName()
 {
     return QString("Read Write");
 }
