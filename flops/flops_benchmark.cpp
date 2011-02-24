@@ -13,7 +13,8 @@ FlopsBenchmark::FlopsBenchmark(Environment *environment, QWidget *parent)
     _environment = environment;
 
     _mainWidget = new FlopsMainWidget(parent);
-    _configWidget = new QLabel("ConfigWidget", parent);
+    _configWidget = new FlopsConfigWidget(
+            _environment->getDeviceMaxGlobalMemory(), parent);
 }
 
 FlopsBenchmark::~FlopsBenchmark()
@@ -47,8 +48,10 @@ void FlopsBenchmark::execute()
 {
     initCL();
 
-    float hostData[WORKGROUP_AMOUNT_OF_DATA];
-    setData(hostData, WORKGROUP_AMOUNT_OF_DATA);
+    size_t workGroupData = _configWidget->getWorkSizeAmountOfData();
+
+    float hostData[workGroupData];
+    setData(hostData, workGroupData);
 
 
     _workSizeResults.clear();
@@ -56,12 +59,13 @@ void FlopsBenchmark::execute()
 
     for (size_t i = 1; i <= _environment->getDeviceMaxWorkGroupSize(); i*=2)
     {
-        _workSizeResults[i] = WORKGROUP_AMOUNT_OF_DATA /
-            runKernel(WORKGROUP_AMOUNT_OF_DATA, i);
-        _workSizeResultsVector4[i] = (WORKGROUP_AMOUNT_OF_DATA) /
-            runVector4Kernel(WORKGROUP_AMOUNT_OF_DATA / 4, i);
+        _workSizeResults[i] = workGroupData /
+            runKernel(workGroupData, i);
+        _workSizeResultsVector4[i] = (workGroupData) /
+            runVector4Kernel(workGroupData / 4, i);
     }
-    for (size_t i = 100; i < _environment->getDeviceMaxGlobalMemory(); i*=4)
+    for (size_t i = _configWidget->getDataStartData();
+            i < (size_t)_configWidget->getDataMaxData(); i*=4)
     {
         _dataResults[i] = i / runKernel(i, 256);
         _dataResultsVector4[i] = i / runVector4Kernel(i / 4, 256);

@@ -3,6 +3,7 @@
 #include "../environment.h"
 #include "../base_benchmark.h"
 #include "flops_main_widget.h"
+#include "flops_config_widget.h"
 
 #ifdef __APPLE__
 #   include <OpenCL/opencl.h>
@@ -54,7 +55,7 @@ class FlopsBenchmark
 
         Environment *_environment;
 
-        QWidget *_configWidget;
+        FlopsConfigWidget *_configWidget;
         FlopsMainWidget *_mainWidget;
 
         QMap<size_t, double> _workSizeResults;

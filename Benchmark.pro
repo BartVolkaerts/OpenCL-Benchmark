@@ -14,6 +14,7 @@ HEADERS +=\
     base_benchmark.h\
     flops/flops_benchmark.h\
     flops/flops_main_widget.h\
+    flops/flops_config_widget.h\
     readwrite/read_write_benchmark.h\
 
 SOURCES +=\
@@ -23,7 +24,9 @@ SOURCES +=\
     base_benchmark.cpp\
     flops/flops_benchmark.cpp\
     flops/flops_main_widget.cpp\
+    flops/flops_config_widget.cpp\
     readwrite/read_write_benchmark.cpp\
 
 FORMS += main_window.ui\
     flops/flops_main_widget.ui\
+    flops/flops_config_widget.ui\
