@@ -58,6 +58,7 @@ class Environment
 
         QString getDeviceName(cl_device_id device);
         size_t getDeviceMaxWorkGroupSize();
+        size_t getDeviceMaxGlobalMemory();
 
         // Platform methods:
         cl_platform_id getCurrentPlatform();

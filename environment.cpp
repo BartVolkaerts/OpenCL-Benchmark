@@ -3,12 +3,14 @@
 Environment::Environment(QObject *parent)
     : QObject(parent)
 {
+    _program = NULL;
     _context = NULL;
     _commandQueue = NULL;
 }
 
 Environment::~Environment()
 {
+    CHECK_ERR(clReleaseProgram(_program));
     CHECK_ERR(clReleaseCommandQueue(_commandQueue));
     CHECK_ERR(clReleaseContext(_context));
 }
@@ -35,6 +37,8 @@ void Environment::createProgram(QStringList filenames)
     {
         sizes[i] = readFile(filenames[i], &sources[i]);
     }
+    if (_program)
+        CHECK_ERR(clReleaseProgram(_program));
 
     _program = clCreateProgramWithSource(_context, filenames.size(),
             (const char **)sources, sizes, &error);
@@ -78,7 +82,7 @@ void Environment::printBuildLog()
     clGetProgramBuildInfo(_program, _currentDevice, CL_PROGRAM_BUILD_LOG,
             size, log, NULL);
     log[size] = '\0';
-    qFatal("Build log:\n%s\n", log);
+    qWarning("Build log:\n%s\n", log);
     free(log);
 }
 
@@ -175,7 +179,15 @@ QString Environment::getDeviceName(cl_device_id device)
 size_t Environment::getDeviceMaxWorkGroupSize()
 {
     size_t result;
-    CHECK_ERR(clGetDeviceInfo(_currentDevice, CL_DEVICE_MAX_WORK_GROUP_SIZE, 
+    CHECK_ERR(clGetDeviceInfo(_currentDevice, CL_DEVICE_MAX_WORK_GROUP_SIZE,
+                sizeof(size_t), &result, NULL));
+    return result;
+}
+
+size_t Environment::getDeviceMaxGlobalMemory()
+{
+    size_t result;
+    CHECK_ERR(clGetDeviceInfo(_currentDevice, CL_DEVICE_GLOBAL_MEM_SIZE,
                 sizeof(size_t), &result, NULL));
     return result;
 }

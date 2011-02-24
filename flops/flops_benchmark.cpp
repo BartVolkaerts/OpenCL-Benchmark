@@ -5,6 +5,8 @@
 #include <QLabel>
 #include <iostream>
 
+const int WORKGROUP_AMOUNT_OF_DATA = 100000;
+
 FlopsBenchmark::FlopsBenchmark(Environment *environment, QWidget *parent)
     : BaseBenchmark(environment, parent)
 {
@@ -22,13 +24,13 @@ void FlopsBenchmark::initCL()
 {
     _environment->createProgram(QStringList("flops/kernel.cl"));
     _kernel = _environment->getKernel("add");
+    _vector4Kernel = _environment->getKernel("addVector4");
 }
 
 void FlopsBenchmark::releaseCL()
 {
-    clReleaseMemObject(_deviceInput);
-    clReleaseMemObject(_deviceOutput);
     clReleaseKernel(_kernel);
+    clReleaseKernel(_vector4Kernel);
 }
 
 QWidget *FlopsBenchmark::getConfigWidget()
@@ -45,28 +47,76 @@ void FlopsBenchmark::execute()
 {
     initCL();
 
-    float hostData[1000000];
-    setData(hostData, 1000000);
+    float hostData[WORKGROUP_AMOUNT_OF_DATA];
+    setData(hostData, WORKGROUP_AMOUNT_OF_DATA);
 
-    CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_deviceInput));
-    CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_mem), &_deviceOutput));
-    CHECK_ERR(clSetKernelArg(_kernel, 2, sizeof(int), &_dataSize));
 
-    _results.clear();
+    _workSizeResults.clear();
+    _dataResults.clear();
+
     for (size_t i = 1; i <= _environment->getDeviceMaxWorkGroupSize(); i*=2)
     {
-        _results[i] = 1000000*3/runKernel(i);
+        _workSizeResults[i] = WORKGROUP_AMOUNT_OF_DATA /
+            runKernel(WORKGROUP_AMOUNT_OF_DATA, i);
+        _workSizeResultsVector4[i] = (WORKGROUP_AMOUNT_OF_DATA) /
+            runVector4Kernel(WORKGROUP_AMOUNT_OF_DATA / 4, i);
+    }
+    for (size_t i = 100; i < _environment->getDeviceMaxGlobalMemory(); i*=4)
+    {
+        _dataResults[i] = i / runKernel(i, 256);
+        _dataResultsVector4[i] = i / runVector4Kernel(i / 4, 256);
     }
     showResults();
 
     releaseCL();
 }
 
-double FlopsBenchmark::runKernel(size_t globalWorkSize)
+double FlopsBenchmark::runVector4Kernel(size_t dataSize, size_t globalWorkSize)
 {
     struct timespec beginTime, endTime;
-    size_t totalWorkItems = ((size_t)_dataSize / globalWorkSize + 1) *
+    size_t totalWorkItems = (dataSize / globalWorkSize + 1) *
             globalWorkSize;
+
+    cl_float4 *hostData = new cl_float4[dataSize];
+    setData((float *)hostData, dataSize * sizeof(cl_float4));
+
+    CHECK_ERR(clSetKernelArg(_vector4Kernel, 0, sizeof(cl_mem),
+                &_deviceInput));
+    CHECK_ERR(clSetKernelArg(_vector4Kernel, 1, sizeof(cl_mem),
+                &_deviceOutput));
+    CHECK_ERR(clSetKernelArg(_vector4Kernel, 2,
+                sizeof(cl_float4) * globalWorkSize, NULL));
+    CHECK_ERR(clSetKernelArg(_vector4Kernel, 3, sizeof(int), &dataSize));
+
+    clock_gettime(CLOCK_REALTIME, &beginTime);
+
+    CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(), _vector4Kernel,
+            1, 0, &totalWorkItems, &globalWorkSize, 0, NULL, NULL));
+    clFinish(_environment->getCommandQueue());
+
+    clock_gettime(CLOCK_REALTIME, &endTime);
+
+    clReleaseMemObject(_deviceOutput);
+    clReleaseMemObject(_deviceInput);
+    delete[] hostData;
+
+    return timeDiff(endTime, beginTime);
+}
+
+double FlopsBenchmark::runKernel(size_t dataSize, size_t globalWorkSize)
+{
+    struct timespec beginTime, endTime;
+    size_t totalWorkItems = (dataSize / globalWorkSize + 1) *
+            globalWorkSize;
+
+    float *hostData = new float[dataSize];
+    setData(hostData, dataSize * sizeof(cl_float));
+
+    CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_deviceInput));
+    CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_mem), &_deviceOutput));
+    CHECK_ERR(clSetKernelArg(_kernel, 2, sizeof(cl_float) * globalWorkSize,
+                NULL));
+    CHECK_ERR(clSetKernelArg(_kernel, 3, sizeof(int), &dataSize));
 
     clock_gettime(CLOCK_REALTIME, &beginTime);
 
@@ -76,47 +126,38 @@ double FlopsBenchmark::runKernel(size_t globalWorkSize)
 
     clock_gettime(CLOCK_REALTIME, &endTime);
 
+    clReleaseMemObject(_deviceOutput);
+    clReleaseMemObject(_deviceInput);
+    delete[] hostData;
+
     return timeDiff(endTime, beginTime);
 }
 
 void FlopsBenchmark::showResults()
 {
-    qDebug() << _results;
-    _mainWidget->showResults(_results);
+    _mainWidget->showResults(_workSizeResults, _dataResults,
+            _workSizeResultsVector4, _dataResultsVector4);
 }
 
-void FlopsBenchmark::readResult(float *result)
+void FlopsBenchmark::readResult(void *result, size_t dataSize)
 {
-    cl_int error;
-    error = clEnqueueReadBuffer(_environment->getCommandQueue(), _deviceOutput,
-            CL_TRUE, 0, sizeof(float) * _dataSize, result, 0, NULL, NULL);
-    checkError(error, "clEnqueueReadBuffer()");
+    CHECK_ERR(clEnqueueReadBuffer(_environment->getCommandQueue(), _deviceOutput,
+            CL_TRUE, 0, dataSize, result, 0, NULL, NULL));
     clFinish(_environment->getCommandQueue());
 }
 
-void FlopsBenchmark::setData(float *input, int size)
+void FlopsBenchmark::setData(void *input, size_t size)
 {
-    _dataSize = size;
     cl_int error;
     _deviceInput = clCreateBuffer(_environment->getContext(),
             CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
-            sizeof(float) * size, input, &error);
-    checkError(error, "clCreateBuffer() 1");
+            size, input, &error);
+    CHECK_ERR(error);
 
     _deviceOutput = clCreateBuffer(_environment->getContext(),
             CL_MEM_READ_WRITE,
-            sizeof(float) * size, NULL, &error);
-    checkError(error, "clCreateBuffer() 2");
-}
-
-void FlopsBenchmark::checkError(cl_int error, std::string function)
-{
-    if (error != CL_SUCCESS)
-    {
-        std::cerr << "ERROR: Code: " << error << std::endl 
-            << "    Function: " << function << std::endl;
-        exit(1);
-    }
+            size, NULL, &error);
+    CHECK_ERR(error);
 }
 
 double FlopsBenchmark::timeDiff(const struct timespec &end,

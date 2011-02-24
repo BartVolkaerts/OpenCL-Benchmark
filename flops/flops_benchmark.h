@@ -23,8 +23,8 @@ class FlopsBenchmark
         FlopsBenchmark(Environment *environment, QWidget *parent = 0);
         virtual ~FlopsBenchmark();
 
-        void setData(float *input, int size);
-        void readResult(float *result);
+        void setData(void *input, size_t size);
+        void readResult(void *result, size_t dataSize);
 
         QWidget *getConfigWidget();
         QWidget *getMainWidget();
@@ -39,24 +39,28 @@ class FlopsBenchmark
         double timeDiff(const struct timespec &end,
                 const struct timespec &begin);
 
-        double runKernel(size_t globalWorkSize);
+        double runKernel(size_t dataSize, size_t globalWorkSize);
+        double runVector4Kernel(size_t dataSize, size_t globalWorkSize);
         void showResults();
         void initCL();
         void releaseCL();
 
     private:
         cl_kernel _kernel;
+        cl_kernel _vector4Kernel;
 
         cl_mem _deviceInput;
         cl_mem _deviceOutput;
-        int _dataSize;
 
         Environment *_environment;
 
         QWidget *_configWidget;
         FlopsMainWidget *_mainWidget;
 
-        QMap<size_t, double> _results;
+        QMap<size_t, double> _workSizeResults;
+        QMap<size_t, double> _dataResults;
+        QMap<size_t, double> _workSizeResultsVector4;
+        QMap<size_t, double> _dataResultsVector4;
 
 };
 #endif // FLOPS_BENCHMARK_H

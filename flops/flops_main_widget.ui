@@ -6,16 +6,43 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>669</width>
-    <height>330</height>
+    <width>931</width>
+    <height>603</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QwtPlot" name="workSizeTimePlot"/>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QwtPlot" name="workSizeFlopsPlot">
+     <property name="propertiesDocument" stdset="0">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QwtPlot" name="dataFlopsPlot"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="workSizeFlopsPlotLabel">
+     <property name="text">
+      <string>&lt;h2&gt;Flops over worksize&lt;/h2&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="dataFlopsPlotLabel">
+     <property name="text">
+      <string>&lt;h2&gt;Flops over amount of data&lt;/h2&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

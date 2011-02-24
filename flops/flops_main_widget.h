@@ -15,13 +15,25 @@ class FlopsMainWidget
         FlopsMainWidget(QWidget *parent = 0);
         virtual ~FlopsMainWidget();
 
-        void showResults(QMap<size_t, double> data);
+        void showResults(QMap<size_t, double> &workSizeData,
+                QMap<size_t, double> &dataData,
+                QMap<size_t, double> &workSizeVector4Data,
+                QMap<size_t, double> &dataVector4Data);
 
     private:
         Ui::FlopsMainWidget ui;
 
-        QwtPlotCurve *_curve;
-        QPolygonF _data;
+        QwtPlotCurve *_workSizeCurve;
+        QPolygonF _workSizeData;
+
+        QwtPlotCurve *_workSizeVector4Curve;
+        QPolygonF _workSizeVector4Data;
+
+        QwtPlotCurve *_dataCurve;
+        QPolygonF _dataData;
+
+        QwtPlotCurve *_dataVector4Curve;
+        QPolygonF _dataVector4Data;
 };
 
 #endif // FLOPS_MAIN_WIDGET_H
