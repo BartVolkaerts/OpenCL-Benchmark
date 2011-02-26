@@ -1,5 +1,7 @@
 TARGET = Benchmark
 
+QT += opengl
+
 LIBS += -lOpenCL -levent -lqwt
 INCLUDEPATH += /usr/include/qwt
 

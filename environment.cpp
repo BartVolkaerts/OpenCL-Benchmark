@@ -1,5 +1,12 @@
 #include "environment.h"
 
+
+// TODO: Include headers for other platforms.
+#include <CL/cl_gl_ext.h>
+#include <CL/cl_gl.h>
+#include <GL/glx.h>
+#define GL_SHARING_EXTENSION "cl_khr_gl_sharing"
+
 Environment::Environment(QObject *parent)
     : QObject(parent)
 {
@@ -116,7 +123,19 @@ void Environment::createContext()
 
 void Environment::createGLContext()
 {
-    // TODO: Implement function
+    // TODO: Works only on linux, impliment on multiple platforms.
+    cl_int error;
+    if (_context)
+        CHECK_ERR(clReleaseContext(_context));
+    cl_context_properties props[] =
+    {
+        CL_GL_CONTEXT_KHR,  (cl_context_properties)glXGetCurrentContext(),
+        CL_GLX_DISPLAY_KHR, (cl_context_properties)glXGetCurrentDisplay(),
+        CL_CONTEXT_PLATFORM, (cl_context_properties)_currentPlatform,
+        0
+    };
+    _context = clCreateContext(props, 1, &_currentDevice, NULL, NULL, &error);
+    CHECK_ERR(error);
 }
 
 cl_context Environment::getContext()
