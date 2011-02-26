@@ -2,7 +2,7 @@ TARGET = Benchmark
 
 QT += opengl
 
-LIBS += -lOpenCL -levent -lqwt
+LIBS += -lOpenCL -levent -lqwt -lm
 INCLUDEPATH += /usr/include/qwt
 
 OBJECTS_DIR = ./build

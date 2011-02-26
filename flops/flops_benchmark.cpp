@@ -4,6 +4,7 @@
 #include <fstream>
 #include <QLabel>
 #include <iostream>
+#include <cmath>
 
 const int WORKGROUP_AMOUNT_OF_DATA = 100000;
 
@@ -13,8 +14,7 @@ FlopsBenchmark::FlopsBenchmark(Environment *environment, QWidget *parent)
     _environment = environment;
 
     _mainWidget = new FlopsMainWidget(parent);
-    _configWidget = new FlopsConfigWidget(
-            _environment->getDeviceMaxGlobalMemory(), parent);
+    _configWidget = new FlopsConfigWidget(parent);
 }
 
 FlopsBenchmark::~FlopsBenchmark()
@@ -46,9 +46,19 @@ QWidget *FlopsBenchmark::getMainWidget()
 
 void FlopsBenchmark::execute()
 {
+    _mainWidget->setWorkSizeProgress(0);
+    _mainWidget->setDataProgress(0);
+
     initCL();
 
-    size_t workGroupData = _configWidget->getWorkSizeAmountOfData();
+    const int OPERATION16_FLOP = 4096;
+
+    int iterations = 1000;
+    int maxWorkGroupSize = _environment->getDeviceMaxWorkGroupSize();
+    int workGroupData = _configWidget->getWorkSizeAmountOfData();
+    int maxData = _configWidget->getDataMaxData();
+    int minData = _configWidget->getDataStartData();
+
 
     float hostData[workGroupData];
     setData(hostData, workGroupData);
@@ -57,40 +67,59 @@ void FlopsBenchmark::execute()
     _workSizeResults.clear();
     _dataResults.clear();
 
-    for (size_t i = 1; i <= _environment->getDeviceMaxWorkGroupSize(); i*=2)
+    double operations = (double)workGroupData *
+                        (double)iterations *
+                        (double)OPERATION16_FLOP;
+#if 1
+    for (int i = 32; i <= maxWorkGroupSize; i*=2)
     {
-        _workSizeResults[i] = workGroupData /
-            runKernel(workGroupData, i);
-        _workSizeResultsVector4[i] = (workGroupData) /
-            runVector4Kernel(workGroupData / 4, i);
+        _workSizeResults[i] = operations /
+            runKernel(workGroupData, iterations, i);
+
+        _workSizeResultsVector4[i] = operations /
+            runVector4Kernel(workGroupData, iterations / 4, i);
+        _mainWidget->setWorkSizeProgress((((int)log2(i / 32) * 100) /
+                    (int)log2(maxWorkGroupSize / 32)));
     }
-    for (size_t i = _configWidget->getDataStartData();
-            i < (size_t)_configWidget->getDataMaxData(); i*=4)
+#endif
+    for (int i = minData;i <= maxData; i*=10)
     {
-        _dataResults[i] = i / runKernel(i, 256);
-        _dataResultsVector4[i] = i / runVector4Kernel(i / 4, 256);
+        operations = (double)i *
+                     (double)iterations *
+                     (double)OPERATION16_FLOP;
+        _dataResults[i] = operations / runKernel(i, iterations, 256);
+        _dataResultsVector4[i] = operations / runVector4Kernel(i / 4, iterations, 256);
+        _mainWidget->setDataProgress((((int)log(i / minData) * 100) /
+                    (int)log(maxData / minData)));
     }
+    _mainWidget->setDataProgress(100);
     showResults();
 
     releaseCL();
 }
 
-double FlopsBenchmark::runVector4Kernel(size_t dataSize, size_t globalWorkSize)
+double FlopsBenchmark::runVector4Kernel(size_t dataSize, int iterations, size_t globalWorkSize)
 {
     struct timespec beginTime, endTime;
     size_t totalWorkItems = (dataSize / globalWorkSize + 1) *
             globalWorkSize;
 
     cl_float4 *hostData = new cl_float4[dataSize];
+    for (int i = 0; i < (int)dataSize; ++i)
+    {
+        hostData[i].x = 1.002f + (float)i + (float)globalWorkSize;
+        hostData[i].y = 1.002f + (float)i - (float)globalWorkSize;
+        hostData[i].z = 1.002f - (float)i + (float)globalWorkSize;
+        hostData[i].w = 1.002f - (float)i - (float)globalWorkSize;
+    }
     setData((float *)hostData, dataSize * sizeof(cl_float4));
 
     CHECK_ERR(clSetKernelArg(_vector4Kernel, 0, sizeof(cl_mem),
                 &_deviceInput));
-    CHECK_ERR(clSetKernelArg(_vector4Kernel, 1, sizeof(cl_mem),
-                &_deviceOutput));
-    CHECK_ERR(clSetKernelArg(_vector4Kernel, 2,
+    CHECK_ERR(clSetKernelArg(_vector4Kernel, 1,
                 sizeof(cl_float4) * globalWorkSize, NULL));
-    CHECK_ERR(clSetKernelArg(_vector4Kernel, 3, sizeof(int), &dataSize));
+    CHECK_ERR(clSetKernelArg(_vector4Kernel, 2, sizeof(int), &dataSize));
+    CHECK_ERR(clSetKernelArg(_vector4Kernel, 3, sizeof(int), &iterations));
 
     clock_gettime(CLOCK_REALTIME, &beginTime);
 
@@ -107,20 +136,22 @@ double FlopsBenchmark::runVector4Kernel(size_t dataSize, size_t globalWorkSize)
     return timeDiff(endTime, beginTime);
 }
 
-double FlopsBenchmark::runKernel(size_t dataSize, size_t globalWorkSize)
+double FlopsBenchmark::runKernel(size_t dataSize, int iterations, size_t globalWorkSize)
 {
     struct timespec beginTime, endTime;
     size_t totalWorkItems = (dataSize / globalWorkSize + 1) *
             globalWorkSize;
 
     float *hostData = new float[dataSize];
+    for (int i = 0; i < (int)dataSize; ++i)
+        hostData[i] = 1.002f + (float)i + (float)globalWorkSize;
     setData(hostData, dataSize * sizeof(cl_float));
 
     CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_deviceInput));
-    CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_mem), &_deviceOutput));
-    CHECK_ERR(clSetKernelArg(_kernel, 2, sizeof(cl_float) * globalWorkSize,
+    CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_float) * globalWorkSize,
                 NULL));
-    CHECK_ERR(clSetKernelArg(_kernel, 3, sizeof(int), &dataSize));
+    CHECK_ERR(clSetKernelArg(_kernel, 2, sizeof(int), &dataSize));
+    CHECK_ERR(clSetKernelArg(_kernel, 3, sizeof(int), &iterations));
 
     clock_gettime(CLOCK_REALTIME, &beginTime);
 
@@ -141,6 +172,15 @@ void FlopsBenchmark::showResults()
 {
     _mainWidget->showResults(_workSizeResults, _dataResults,
             _workSizeResultsVector4, _dataResultsVector4);
+
+    qDebug() << "WorkSize: \n" << _workSizeResults << "\n----------";
+    qDebug() << "WorkSize (vector4): \n" << _workSizeResultsVector4 
+                                      << "\n----------";
+    qDebug() << "Data: \n" << _dataResults << "\n----------";
+    qDebug() << "Data (vector4): \n" << _dataResultsVector4 <<
+                                  "\n----------";
+
+
 }
 
 void FlopsBenchmark::readResult(void *result, size_t dataSize)

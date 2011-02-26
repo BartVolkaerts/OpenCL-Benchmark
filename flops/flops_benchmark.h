@@ -40,8 +40,8 @@ class FlopsBenchmark
         double timeDiff(const struct timespec &end,
                 const struct timespec &begin);
 
-        double runKernel(size_t dataSize, size_t globalWorkSize);
-        double runVector4Kernel(size_t dataSize, size_t globalWorkSize);
+        double runKernel(size_t dataSize, int iterations, size_t globalWorkSize);
+        double runVector4Kernel(size_t dataSize, int iterations, size_t globalWorkSize);
         void showResults();
         void initCL();
         void releaseCL();

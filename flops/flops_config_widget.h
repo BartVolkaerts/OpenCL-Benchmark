@@ -9,8 +9,7 @@ class FlopsConfigWidget
     Q_OBJECT
 
     public:
-        FlopsConfigWidget(int max,
-                QWidget *parent = 0);
+        FlopsConfigWidget(QWidget *parent = 0);
         virtual ~FlopsConfigWidget();
 
         int getDataMaxData();

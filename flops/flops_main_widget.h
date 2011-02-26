@@ -19,6 +19,8 @@ class FlopsMainWidget
                 QMap<size_t, double> &dataData,
                 QMap<size_t, double> &workSizeVector4Data,
                 QMap<size_t, double> &dataVector4Data);
+        void setWorkSizeProgress(int progress);
+        void setDataProgress(int progress);
 
     private:
         Ui::FlopsMainWidget ui;
