@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
             new FlopsBenchmark(_environment, this));
     addBenchmark(ReadWriteBenchmark::getName(),
             new ReadWriteBenchmark(_environment, this));
+    addBenchmark(Galaxy::getName(),
+            new Galaxy(_environment, this));
 
     ui.benchmarkList->addItems(_benchmarks.keys());
     ui.centralwidget->setLayout(new QVBoxLayout());
@@ -34,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent)
             this, SLOT(setBenchmarkWidgets(const QString &)));
     connect(ui.startButton, SIGNAL(clicked()),
             this, SLOT(launchBenchmark()));
+    connect(ui.stopButton, SIGNAL(clicked()),
+            this, SLOT(stopBenchmark()));
 }
 
 MainWindow::~MainWindow()
@@ -80,7 +84,17 @@ void MainWindow::launchBenchmark()
     BaseBenchmark *benchmark = getSelectedBenchmark();
     if (benchmark)
         benchmark->execute();
-    setBenchmarkRunningLock(false);
+    if (!benchmark->waitForStop())
+        setBenchmarkRunningLock(false);
+}
+
+void MainWindow::stopBenchmark()
+{
+    if (_currentBenchmark->waitForStop())
+    {
+        _currentBenchmark->stop();
+        setBenchmarkRunningLock(false);
+    }
 }
 
 void MainWindow::setBenchmarkRunningLock(bool locked)
@@ -91,6 +105,7 @@ void MainWindow::setBenchmarkRunningLock(bool locked)
         QApplication::restoreOverrideCursor();
 
     ui.startButton->setEnabled(!locked);
+    ui.stopButton->setEnabled(locked);
     ui.benchmarkList->setEnabled(!locked);
     ui.hardwareWidget->setEnabled(!locked);
     ui.benchmarkWidget->setEnabled(!locked);

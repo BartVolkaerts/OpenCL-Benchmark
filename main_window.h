@@ -5,6 +5,7 @@
 #include "base_benchmark.h"
 #include "flops/flops_benchmark.h"
 #include "readwrite/read_write_benchmark.h"
+#include "galaxy/galaxy.h"
 
 #include <QMainWindow>
 #include <QVector>
@@ -27,6 +28,7 @@ class MainWindow
         void platformBoxChanged(const QString &currentIndex);
         void deviceBoxChanged(const QString &currentIndex);
         void launchBenchmark();
+        void stopBenchmark();
         void setBenchmarkWidgets(const QString &benchmark);
 
     private:

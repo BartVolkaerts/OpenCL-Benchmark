@@ -15,9 +15,11 @@ class BaseBenchmark
 
         virtual QWidget *getConfigWidget() = 0;
         virtual QWidget *getMainWidget() = 0;
+        virtual bool waitForStop();
 
     public slots:
         virtual void execute() = 0;
+        virtual void stop();
 
     protected:
         Environment *_environment;

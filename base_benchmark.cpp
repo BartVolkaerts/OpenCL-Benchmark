@@ -10,3 +10,12 @@ BaseBenchmark::BaseBenchmark(Environment *environment, QWidget *parent)
 BaseBenchmark::~BaseBenchmark()
 {
 }
+
+void BaseBenchmark::stop()
+{
+}
+
+bool BaseBenchmark::waitForStop()
+{
+    return false;
+}

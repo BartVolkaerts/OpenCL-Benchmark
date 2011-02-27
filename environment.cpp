@@ -105,6 +105,8 @@ cl_command_queue Environment::getCommandQueue()
 void Environment::createCommandQueue()
 {
     cl_int error;
+    if (_commandQueue)
+        CHECK_ERR(clReleaseCommandQueue(_commandQueue));
     _commandQueue = clCreateCommandQueue(_context, _currentDevice, 0, &error);
     CHECK_ERR(error);
 }
@@ -119,6 +121,7 @@ void Environment::createContext()
         CHECK_ERR(clReleaseContext(_context));
     _context = clCreateContext(NULL, 1, &_currentDevice, NULL, NULL, &error);
     CHECK_ERR(error);
+    createCommandQueue();
 }
 
 void Environment::createGLContext()
@@ -136,6 +139,7 @@ void Environment::createGLContext()
     };
     _context = clCreateContext(props, 1, &_currentDevice, NULL, NULL, &error);
     CHECK_ERR(error);
+    createCommandQueue();
 }
 
 cl_context Environment::getContext()
