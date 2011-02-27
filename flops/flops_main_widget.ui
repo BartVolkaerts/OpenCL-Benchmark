@@ -22,6 +22,12 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QwtPlot" name="workSizeFlopsPlot">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
         <property name="propertiesDocument" stdset="0">
          <string/>
         </property>
@@ -94,7 +100,14 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QwtPlot" name="dataFlopsPlot"/>
+       <widget class="QwtPlot" name="dataFlopsPlot">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QTableWidget" name="dataTable">

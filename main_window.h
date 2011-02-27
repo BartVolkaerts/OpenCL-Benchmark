@@ -31,6 +31,7 @@ class MainWindow
 
     private:
         BaseBenchmark *getSelectedBenchmark();
+        void setBenchmarkRunningLock(bool locked);
 
 
     private:

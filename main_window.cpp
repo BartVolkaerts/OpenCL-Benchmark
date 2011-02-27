@@ -76,9 +76,25 @@ void MainWindow::setBenchmarkWidgets(const QString &benchmark)
 
 void MainWindow::launchBenchmark()
 {
+    setBenchmarkRunningLock(true);
     BaseBenchmark *benchmark = getSelectedBenchmark();
     if (benchmark)
         benchmark->execute();
+    setBenchmarkRunningLock(false);
+}
+
+void MainWindow::setBenchmarkRunningLock(bool locked)
+{
+    if (locked)
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+    else
+        QApplication::restoreOverrideCursor();
+
+    ui.startButton->setEnabled(!locked);
+    ui.benchmarkList->setEnabled(!locked);
+    ui.hardwareWidget->setEnabled(!locked);
+    ui.benchmarkWidget->setEnabled(!locked);
+
 }
 
 void MainWindow::setDevicesBox()
