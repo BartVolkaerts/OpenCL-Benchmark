@@ -5,8 +5,12 @@
 #include <QWidget>
 
 // TODO: Platform independent
-#include <sys/time.h>
-#include <time.h>
+#ifdef _WIN32
+#   include <windows.h>
+#else
+#   include <sys/time.h>
+#   include <time.h>
+#endif
 
 class BaseBenchmark
     : public QObject
@@ -34,8 +38,14 @@ class BaseBenchmark
         Environment *_environment;
 
     private:
+#ifdef _WIN32
+        __int64 _beginTime;
+        __int64 _endTime;
+        double _pcFreq;
+#else
         struct timespec _beginTime;
         struct timespec _endTime;
+#endif
 
 };
 #endif // BASE_BENCHMARK_H
