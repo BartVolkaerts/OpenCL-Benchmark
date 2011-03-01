@@ -2,9 +2,9 @@ TARGET = Benchmark
 
 QT += opengl
 
-LIBS += -lOpenCL -levent -lqwt -lm -lopencv_core -lopencv_highgui
-INCLUDEPATH += /usr/include/qwt
-DEFINES += GL_GLEXT_PROTOTYPES
+unix:LIBS += -lOpenCL -levent -lqwt -lm -lopencv_core -lopencv_highgui
+unix:INCLUDEPATH += /usr/include/qwt
+unix:DEFINES += GL_GLEXT_PROTOTYPES
 
 OBJECTS_DIR = ./build
 MOC_DIR = ./build
