@@ -79,7 +79,7 @@
       <item row="0" column="1">
        <widget class="QSpinBox" name="workGroupDataBox">
         <property name="maximum">
-         <number>100000</number>
+         <number>1000000</number>
         </property>
         <property name="value">
          <number>100000</number>

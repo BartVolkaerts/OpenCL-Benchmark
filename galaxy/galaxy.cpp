@@ -2,7 +2,7 @@
 #include <QLabel>
 #include <QTime>
 
-const int numberOfStars = 1000000;
+const int numberOfStars = 1000;
 const int numberOfGalacticCenters = 10;
 
 Galaxy::Galaxy(Environment *environment, QWidget *parent)
@@ -53,7 +53,7 @@ void Galaxy::initCL()
     _starBuffer = clCreateFromGLBuffer(_environment->getContext(),
             CL_MEM_READ_WRITE, _starVBO, &error);
     CHECK_ERR(error);
-    clFinish(_environment->getCommandQueue());
+    CHECK_ERR(clFinish(_environment->getCommandQueue()));
     CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(),
             1, &_starBuffer, 0, NULL, NULL));
     CHECK_ERR(clEnqueueWriteBuffer(_environment->getCommandQueue(), _starBuffer,
@@ -83,8 +83,8 @@ void Galaxy::initCL()
             &_galacticCenterBuffer));
     CHECK_ERR(clSetKernelArg(_kernel, 3, sizeof(cl_mem),
             &_starSpeedBuffer));
-    CHECK_ERR(clSetKernelArg(_kernel, 4, sizeof(float),
-            &tijd));
+    CHECK_ERR(clSetKernelArg(_kernel, 4, sizeof(int),
+            &numberOfStars));
 
     CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 1,
             &_starBuffer, 0, NULL, NULL));

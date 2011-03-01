@@ -174,7 +174,6 @@ __kernel void add(__global float *output,
     {
         float x = temp[localId];
         float y = 1.01f;
-
         for (int i = 0; i < iterations; ++i)
         {
             OPERATION(x, y);

@@ -53,7 +53,7 @@ void FlopsBenchmark::execute()
 
     const int OPERATION16_FLOP = 4096;
 
-    int iterations = 1000;
+    int iterations = 100;
     int maxWorkGroupSize = _environment->getDeviceMaxWorkGroupSize();
     int workGroupData = _configWidget->getWorkSizeAmountOfData();
     int maxData = _configWidget->getDataMaxData();
@@ -125,18 +125,20 @@ double FlopsBenchmark::runVector4Kernel(size_t dataSize, int iterations, size_t 
 
     CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(), _vector4Kernel,
             1, 0, &totalWorkItems, &globalWorkSize, 0, NULL, NULL));
-    clFinish(_environment->getCommandQueue());
+    CHECK_ERR(clFinish(_environment->getCommandQueue()));
 
     clock_gettime(CLOCK_REALTIME, &endTime);
+    readResult(hostData, dataSize);
 
-    clReleaseMemObject(_deviceOutput);
-    clReleaseMemObject(_deviceInput);
+    CHECK_ERR(clReleaseMemObject(_deviceOutput));
+    CHECK_ERR(clReleaseMemObject(_deviceInput));
     delete[] hostData;
 
     return timeDiff(endTime, beginTime);
 }
 
-double FlopsBenchmark::runKernel(size_t dataSize, int iterations, size_t globalWorkSize)
+double FlopsBenchmark::runKernel(size_t dataSize, int iterations,
+        size_t globalWorkSize)
 {
     struct timespec beginTime, endTime;
     size_t totalWorkItems = (dataSize / globalWorkSize + 1) *
@@ -157,12 +159,13 @@ double FlopsBenchmark::runKernel(size_t dataSize, int iterations, size_t globalW
 
     CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(), _kernel,
             1, 0, &totalWorkItems, &globalWorkSize, 0, NULL, NULL));
-    clFinish(_environment->getCommandQueue());
+    CHECK_ERR(clFinish(_environment->getCommandQueue()));
 
     clock_gettime(CLOCK_REALTIME, &endTime);
+    readResult(hostData, dataSize);
 
-    clReleaseMemObject(_deviceOutput);
-    clReleaseMemObject(_deviceInput);
+    CHECK_ERR(clReleaseMemObject(_deviceOutput));
+    CHECK_ERR(clReleaseMemObject(_deviceInput));
     delete[] hostData;
 
     return timeDiff(endTime, beginTime);
