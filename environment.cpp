@@ -17,9 +17,12 @@ Environment::Environment(QObject *parent)
 
 Environment::~Environment()
 {
-    CHECK_ERR(clReleaseProgram(_program));
-    CHECK_ERR(clReleaseCommandQueue(_commandQueue));
-    CHECK_ERR(clReleaseContext(_context));
+    if (_program)
+        CHECK_ERR(clReleaseProgram(_program));
+    if (_commandQueue)
+        CHECK_ERR(clReleaseCommandQueue(_commandQueue));
+    if(_context)
+        CHECK_ERR(clReleaseContext(_context));
 }
 
 // Program:
