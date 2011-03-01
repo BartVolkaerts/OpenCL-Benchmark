@@ -2,7 +2,7 @@ TARGET = Benchmark
 
 QT += opengl
 
-LIBS += -lOpenCL -levent -lqwt -lm
+LIBS += -lOpenCL -levent -lqwt -lm -lopencv_core -lopencv_highgui
 INCLUDEPATH += /usr/include/qwt
 DEFINES += GL_GLEXT_PROTOTYPES
 
@@ -18,10 +18,13 @@ HEADERS +=\
     flops/flops_benchmark.h\
     flops/flops_main_widget.h\
     flops/flops_config_widget.h\
-    readwrite/read_write_benchmark.h\
+    readwrite/glwidget.h\
+    readwrite/videosource.h\
     galaxy/galaxy_main_widget.h\
     galaxy/galaxy.h\
     galaxy/camera.h\
+    readwrite/readwrite.h \
+    readwrite/readwriteconfigwidget.h
 
 SOURCES +=\
     main.cpp\
@@ -31,11 +34,15 @@ SOURCES +=\
     flops/flops_benchmark.cpp\
     flops/flops_main_widget.cpp\
     flops/flops_config_widget.cpp\
-    readwrite/read_write_benchmark.cpp\
+    readwrite/glwidget.cpp\
+    readwrite/videosource.cpp\
     galaxy/galaxy_main_widget.cpp\
     galaxy/galaxy.cpp\
     galaxy/camera.cpp\
+    readwrite/readwrite.cpp \
+    readwrite/readwriteconfigwidget.cpp
 
 FORMS += main_window.ui\
     flops/flops_main_widget.ui\
     flops/flops_config_widget.ui\
+    readwrite/readwriteconfigwidget.ui

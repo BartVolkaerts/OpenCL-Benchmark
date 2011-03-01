@@ -4,7 +4,7 @@
 #include "environment.h"
 #include "base_benchmark.h"
 #include "flops/flops_benchmark.h"
-#include "readwrite/read_write_benchmark.h"
+#include "readwrite/readwrite.h"
 #include "galaxy/galaxy.h"
 
 #include <QMainWindow>
