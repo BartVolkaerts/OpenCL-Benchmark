@@ -43,7 +43,6 @@ void Galaxy::initCL()
     size_t starBufferSize = numberOfStars * sizeof(cl_float4);
     size_t galacticCenterBufferSize = numberOfGalacticCenters *
         sizeof(cl_float4);
-    float tijd = 0.f;
 
     _environment->createGLContext();
     _environment->createProgram(QStringList("galaxy/kernel.cl"));

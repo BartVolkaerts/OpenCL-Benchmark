@@ -100,7 +100,6 @@ void FlopsBenchmark::execute()
 
 double FlopsBenchmark::runVector4Kernel(size_t dataSize, int iterations, size_t globalWorkSize)
 {
-    struct timespec beginTime, endTime;
     size_t totalWorkItems = (dataSize / globalWorkSize + 1) *
             globalWorkSize;
 
@@ -121,26 +120,25 @@ double FlopsBenchmark::runVector4Kernel(size_t dataSize, int iterations, size_t 
     CHECK_ERR(clSetKernelArg(_vector4Kernel, 2, sizeof(int), &dataSize));
     CHECK_ERR(clSetKernelArg(_vector4Kernel, 3, sizeof(int), &iterations));
 
-    clock_gettime(CLOCK_REALTIME, &beginTime);
+    startTimeMeasure();
 
     CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(), _vector4Kernel,
             1, 0, &totalWorkItems, &globalWorkSize, 0, NULL, NULL));
     CHECK_ERR(clFinish(_environment->getCommandQueue()));
 
-    clock_gettime(CLOCK_REALTIME, &endTime);
+    stopTimeMeasure();
     readResult(hostData, dataSize);
 
     CHECK_ERR(clReleaseMemObject(_deviceOutput));
     CHECK_ERR(clReleaseMemObject(_deviceInput));
     delete[] hostData;
 
-    return timeDiff(endTime, beginTime);
+    return getTimeMeasureResults();
 }
 
 double FlopsBenchmark::runKernel(size_t dataSize, int iterations,
         size_t globalWorkSize)
 {
-    struct timespec beginTime, endTime;
     size_t totalWorkItems = (dataSize / globalWorkSize + 1) *
             globalWorkSize;
 
@@ -155,20 +153,20 @@ double FlopsBenchmark::runKernel(size_t dataSize, int iterations,
     CHECK_ERR(clSetKernelArg(_kernel, 2, sizeof(int), &dataSize));
     CHECK_ERR(clSetKernelArg(_kernel, 3, sizeof(int), &iterations));
 
-    clock_gettime(CLOCK_REALTIME, &beginTime);
+    startTimeMeasure();
 
     CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(), _kernel,
             1, 0, &totalWorkItems, &globalWorkSize, 0, NULL, NULL));
     CHECK_ERR(clFinish(_environment->getCommandQueue()));
 
-    clock_gettime(CLOCK_REALTIME, &endTime);
+    stopTimeMeasure();
     readResult(hostData, dataSize);
 
     CHECK_ERR(clReleaseMemObject(_deviceOutput));
     CHECK_ERR(clReleaseMemObject(_deviceInput));
     delete[] hostData;
 
-    return timeDiff(endTime, beginTime);
+    return getTimeMeasureResults();
 }
 
 void FlopsBenchmark::showResults()

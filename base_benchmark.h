@@ -4,6 +4,10 @@
 #include <QObject>
 #include <QWidget>
 
+// TODO: Platform independent
+#include <sys/time.h>
+#include <time.h>
+
 class BaseBenchmark
     : public QObject
 {
@@ -22,7 +26,16 @@ class BaseBenchmark
         virtual void stop();
 
     protected:
+        void startTimeMeasure();
+        void stopTimeMeasure();
+        double getTimeMeasureResults();
+
+    protected:
         Environment *_environment;
+
+    private:
+        struct timespec _beginTime;
+        struct timespec _endTime;
 
 };
 #endif // BASE_BENCHMARK_H
