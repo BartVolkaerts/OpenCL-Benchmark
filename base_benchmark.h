@@ -1,7 +1,6 @@
 #ifndef BASE_BENCHMARK_H
 #define BASE_BENCHMARK_H
 #include "environment.h"
-#include <QObject>
 #include <QWidget>
 
 // TODO: Platform independent

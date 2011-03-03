@@ -1,6 +1,5 @@
 #ifndef GALAXY_MAIN_WIDGET_H
 #define GALAXY_MAIN_WIDGET_H
-
 #include <QGLWidget>
 #include <QGLBuffer>
 #include <QGLShader>

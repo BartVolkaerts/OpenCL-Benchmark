@@ -24,7 +24,9 @@ HEADERS +=\
     galaxy/galaxy.h\
     galaxy/camera.h\
     readwrite/readwrite.h \
-    readwrite/readwriteconfigwidget.h
+    readwrite/readwriteconfigwidget.h\
+    mandelbrot/mandelbrot.h\
+    mandelbrot/mandelbrot_main_widget.h\
 
 SOURCES +=\
     main.cpp\
@@ -40,7 +42,9 @@ SOURCES +=\
     galaxy/galaxy.cpp\
     galaxy/camera.cpp\
     readwrite/readwrite.cpp \
-    readwrite/readwriteconfigwidget.cpp
+    readwrite/readwriteconfigwidget.cpp\
+    mandelbrot/mandelbrot.cpp\
+    mandelbrot/mandelbrot_main_widget.cpp\
 
 FORMS += main_window.ui\
     flops/flops_main_widget.ui\

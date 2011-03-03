@@ -6,6 +6,7 @@
 #include "flops/flops_benchmark.h"
 #include "readwrite/readwrite.h"
 #include "galaxy/galaxy.h"
+#include "mandelbrot/mandelbrot.h"
 
 #include <QMainWindow>
 #include <QVector>
