@@ -37,6 +37,7 @@ class Mandelbrot
 
     private:
         void initCL();
+        void releaseCL();
 
         cl_kernel _kernel;
         MandelbrotMainWidget *_mainWidget;
