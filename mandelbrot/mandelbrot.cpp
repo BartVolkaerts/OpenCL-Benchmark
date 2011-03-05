@@ -8,6 +8,8 @@ Mandelbrot::Mandelbrot(Environment *environment, QWidget *parent)
     _configWidget = new QLabel("Mandelbrot", parent);
 
 
+    connect(_mainWidget, SIGNAL(sizeChanged(int, int)),
+            this, SLOT(calculate()));
 }
 
 Mandelbrot::~Mandelbrot()
@@ -16,16 +18,10 @@ Mandelbrot::~Mandelbrot()
 
 void Mandelbrot::initCL()
 {
-    cl_int error;
     _environment->createGLContext();
     _environment->createProgram(QStringList("mandelbrot/kernel.cl"));
     _kernel = _environment->getKernel("calculate");
 
-    // CL Image from GL texture
-    _texture = clCreateFromGLTexture2D(_environment->getContext(),
-            CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
-            _mainWidget->getTexture(), &error);
-    CHECK_ERR(error);
 }
 
 void Mandelbrot::releaseCL()
@@ -33,13 +29,22 @@ void Mandelbrot::releaseCL()
     //CHECK_ERR(clReleaseMemObject(_texture));
 }
 
-void Mandelbrot::execute()
+void Mandelbrot::calculate()
 {
-    initCL();
+    if (!_isRunning)
+        return;
+
     cl_int2 size;
+    cl_int error;
+
+    // CL Image from GL texture
+    _texture = clCreateFromGLTexture2D(_environment->getContext(),
+            CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
+            _mainWidget->getTexture(), &error);
+    CHECK_ERR(error);
+
     size.x = _mainWidget->width();
     size.y = _mainWidget->height();
-
 
     CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_texture));
     CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_int2), &size));
@@ -61,7 +66,19 @@ void Mandelbrot::execute()
             &_texture, 0, NULL, NULL));
 
     _mainWidget->updateGL();
+}
 
+void Mandelbrot::execute()
+{
+    _isRunning = true;
+    initCL();
+
+    calculate();
+
+}
+
+void Mandelbrot::stop()
+{
     releaseCL();
-
+    _isRunning = false;
 }

@@ -29,8 +29,6 @@ void MandelbrotMainWidget::paintGL()
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     _shaderProgram->disableAttributeArray("position");
-    qDebug() << "MandelbrotMainWidget::paintGL()";
-
 }
 
 void MandelbrotMainWidget::initializeGL()

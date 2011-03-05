@@ -4,7 +4,7 @@
 #define MAX_IMAGINARY (MIN_IMAGINARY + (MAX_REAL - MIN_REAL) *\
     get_image_height(texture) / get_image_width(texture))
 //#define MAX_IMAGINARY 1.2
-#define MAX_ITERATIONS 150
+#define MAX_ITERATIONS 200
 
 #define IMAGINARY_POS(y, height)\
     (float)(MAX_IMAGINARY -\
@@ -38,7 +38,7 @@ __kernel void calculate(__write_only image2d_t texture, const int2 size)
         if (zRealSquared + zImaginarySquared > 4)
         {
             isInside = false;
-            color = (float)i / MAX_ITERATIONS;
+            color = (float)(i * 2) / (float)MAX_ITERATIONS;
             break;
         }
         tmp = zRealSquared - zImaginarySquared + realNumber;
@@ -46,8 +46,23 @@ __kernel void calculate(__write_only image2d_t texture, const int2 size)
         zReal = tmp;
     }
     if (isInside)
+    {
         write_imagef(texture, (int2)(posX, posY), (float4)(0.f, 0.f, 0.f, 0.5f));
+    }
     else
-        write_imagef(texture, (int2)(posX, posY), (float4)(color, color, color, 0.5f));
+    {
+        float4 renderColor = (float4)(0.f, 0.f, 0.f, 0.f);
+        // Red
+        if (color < 1.f)
+            renderColor.x = color;
+        // Blue
+        if (color > 1.f)
+            renderColor.y = color - 1.f;
+        // Green
+        if (color > 0.5f && color < 1.5f)
+            renderColor.z = color - 0.5f;
+
+        write_imagef(texture, (int2)(posX, posY), renderColor);
+    }
 }
 

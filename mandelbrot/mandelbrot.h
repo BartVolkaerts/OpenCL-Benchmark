@@ -33,11 +33,15 @@ class Mandelbrot
 
     public slots:
         void execute();
+        void stop();
+        void calculate();
 
 
     private:
         void initCL();
         void releaseCL();
+
+        bool _isRunning;
 
         cl_kernel _kernel;
         MandelbrotMainWidget *_mainWidget;
