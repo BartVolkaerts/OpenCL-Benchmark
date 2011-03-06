@@ -28,7 +28,8 @@ protected:
 private:
     QGLShaderProgram *_shaderProgram;
     QVector<QVector2D> _vertexArray;
-    GLuint _textureId;
+    GLuint _inputTextureId;
+    GLuint _outputTextureId;
     IplImage *_temp;
     QMatrix2x2 _matrix;
 

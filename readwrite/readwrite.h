@@ -9,6 +9,12 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+#ifdef __APPLE__
+#   include <OpenCL/opencl.h>
+#else
+#   include <CL/opencl.h>
+#endif
+
 class ReadWrite
     : public BaseBenchmark
 {
@@ -35,12 +41,16 @@ protected:
 
 private:
     GlWidget *_glWidget;
-    GlWidget *_glWidget2;
     VideoSource *_source;
     QVBoxLayout *_vLayout;
 
     QWidget *_mainWidget;
     QWidget *_configWidget;
+
+    Environment *_environment;
+
+    cl_kernel _kernel;
+    cl_mem _image;
 
 };
 

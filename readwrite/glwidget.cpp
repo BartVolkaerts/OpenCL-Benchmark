@@ -19,8 +19,8 @@ void GlWidget::initializeGL()
     makeShaders();
     makeGeometry();
 
-    glGenTextures(1, &_textureId);
-    glBindTexture(GL_TEXTURE_2D, _textureId);
+    glGenTextures(1, &_inputTextureId);
+    glBindTexture(GL_TEXTURE_2D, _inputTextureId);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -37,7 +37,7 @@ void GlWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _textureId);
+    glBindTexture(GL_TEXTURE_2D, _inputTextureId);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
             _temp->width, _temp->height, 0, GL_BGR,
@@ -51,7 +51,7 @@ void GlWidget::paintGL()
     _shaderProgram->setAttributeArray("position", _vertexArray.constData());
     _shaderProgram->enableAttributeArray("position");
 
-    glBindTexture(GL_TEXTURE_2D, _textureId);
+    glBindTexture(GL_TEXTURE_2D, _inputTextureId);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     _shaderProgram->disableAttributeArray("position");
