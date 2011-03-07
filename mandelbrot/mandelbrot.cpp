@@ -7,9 +7,19 @@ Mandelbrot::Mandelbrot(Environment *environment, QWidget *parent)
     _mainWidget = new MandelbrotMainWidget(parent);
     _configWidget = new QLabel("Mandelbrot", parent);
 
+    _maxIterations = 200;
+    _minReal = -2.f;
+    _maxReal = 1.f;
+    _minImaginary = -1.2f;
 
     connect(_mainWidget, SIGNAL(sizeChanged(int, int)),
-            this, SLOT(calculate()));
+            this, SLOT(bufferSizeChanged()));
+    connect(_mainWidget, SIGNAL(zoomIn(int)),
+            this, SLOT(zoomIn(int)));
+    connect(_mainWidget, SIGNAL(zoomOut(int)),
+            this, SLOT(zoomOut(int)));
+    connect(_mainWidget, SIGNAL(keyMove(int, int)),
+            this, SLOT(keyMove(int, int)));
 }
 
 Mandelbrot::~Mandelbrot()
@@ -18,15 +28,25 @@ Mandelbrot::~Mandelbrot()
 
 void Mandelbrot::initCL()
 {
+    cl_int error;
     _environment->createGLContext();
     _environment->createProgram(QStringList("mandelbrot/kernel.cl"));
     _kernel = _environment->getKernel("calculate");
 
+    _texture = clCreateFromGLTexture2D(_environment->getContext(),
+            CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
+            _mainWidget->getTexture(), &error);
+    CHECK_ERR(error);
 }
 
 void Mandelbrot::releaseCL()
 {
     //CHECK_ERR(clReleaseMemObject(_texture));
+}
+
+void Mandelbrot::bufferSizeChanged()
+{
+    calculate();
 }
 
 void Mandelbrot::calculate()
@@ -36,18 +56,29 @@ void Mandelbrot::calculate()
 
     cl_int2 size;
     cl_int error;
+    cl_int maxIterations = 200;
+    cl_float minReal = -1.f;//-2.f;
+    cl_float maxReal = 0.5f;//1.f;
+    cl_float minImaginary = -.6f;//-1.2f;
 
     // CL Image from GL texture
+#if 0
     _texture = clCreateFromGLTexture2D(_environment->getContext(),
             CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
             _mainWidget->getTexture(), &error);
     CHECK_ERR(error);
+#endif
 
     size.x = _mainWidget->width();
     size.y = _mainWidget->height();
 
     CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_texture));
     CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_int2), &size));
+    CHECK_ERR(clSetKernelArg(_kernel, 2, sizeof(cl_int), &_maxIterations));
+    CHECK_ERR(clSetKernelArg(_kernel, 3, sizeof(cl_float), &_minReal));
+    CHECK_ERR(clSetKernelArg(_kernel, 4, sizeof(cl_float), &_maxReal));
+    CHECK_ERR(clSetKernelArg(_kernel, 5, sizeof(cl_float), &_minImaginary));
+
 
     CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 1,
                 &_texture, 0, NULL, NULL));
@@ -74,11 +105,46 @@ void Mandelbrot::execute()
     initCL();
 
     calculate();
-
 }
 
 void Mandelbrot::stop()
 {
     releaseCL();
     _isRunning = false;
+}
+
+
+
+void Mandelbrot::zoomIn(int amount)
+{
+    _maxIterations *= 2;
+    _minReal /= 2.f;
+    _maxReal /= 2.f;
+    _minImaginary /= 2.f;
+    qDebug() << "zoomIn()";
+    calculate();
+}
+
+void Mandelbrot::zoomOut(int amount)
+{
+    _maxIterations /= 2;
+    _minReal *= 2.f;
+    _maxReal *= 2.f;
+    _minImaginary *= 2.f;
+    qDebug() << "zoomOut()";
+    calculate();
+}
+
+void Mandelbrot::keyMove(int x, int y)
+{
+    if (x)
+    {
+        _minReal += ((float)_maxIterations / 100.f) / x;
+        _maxReal += ((float)_maxIterations / 100.f) / x;
+    }
+    if (y)
+        _minImaginary += ((float)_maxIterations /400.f) / y;
+    qDebug() << "Move:" << x << ", " << y;
+    calculate();
+
 }

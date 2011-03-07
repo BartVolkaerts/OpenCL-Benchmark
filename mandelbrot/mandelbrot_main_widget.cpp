@@ -5,7 +5,7 @@
 MandelbrotMainWidget::MandelbrotMainWidget(QWidget *parent)
     : QGLWidget(parent)
 {
-
+    setFocusPolicy(Qt::ClickFocus);
 }
 
 MandelbrotMainWidget::~MandelbrotMainWidget()
@@ -126,4 +126,35 @@ void MandelbrotMainWidget::makeShaders()
     _shaderProgram->link();
     _shaderProgram->bind();
 
+}
+
+void MandelbrotMainWidget::wheelEvent(QWheelEvent *event)
+{
+    if (event->delta() > 0)
+    {
+        emit zoomIn(event->delta());
+    }
+    if (event->delta() < 0)
+    {
+        emit zoomOut(- event->delta());
+    }
+}
+
+void MandelbrotMainWidget::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key())
+    {
+        case Qt::Key_Up:
+            emit keyMove(0, -100);
+            break;
+        case Qt::Key_Down:
+            emit keyMove(0, 100);
+            break;
+        case Qt::Key_Left:
+            emit keyMove(100, 0);
+            break;
+        case Qt::Key_Right:
+            emit keyMove(-100, 0);
+            break;
+    }
 }
