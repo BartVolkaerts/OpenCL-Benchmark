@@ -58,6 +58,7 @@ private:
 
     cl_kernel _kernelByteToFloat;
     cl_mem _image;
+    cl_mem _input;
 
 };
 

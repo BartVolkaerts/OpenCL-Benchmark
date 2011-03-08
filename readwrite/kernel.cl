@@ -1,5 +1,9 @@
-__kernel void byteToFloat(__write_only image2d_t texture)
+__kernel void byteToFloat(__global float4 *output)
 {
     const int posX = get_global_id(0);
-    const int posY = get_global_id(1);
+    if (posX<10)
+    {
+        output[posX].x = 0.6f;
+        output[posX].y = 0.3f;
+    }
 }
