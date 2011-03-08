@@ -17,6 +17,8 @@ public:
     GlWidget(QWidget *parent = 0);
     ~GlWidget();
 
+    GLuint getTexture() { return _inputTextureId; }
+
 protected:
     void initializeGL();
     void paintGL();
@@ -29,7 +31,6 @@ private:
     QGLShaderProgram *_shaderProgram;
     QVector<QVector2D> _vertexArray;
     GLuint _inputTextureId;
-    GLuint _outputTextureId;
     IplImage *_temp;
     QMatrix2x2 _matrix;
 

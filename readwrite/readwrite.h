@@ -10,9 +10,15 @@
 #include <QVBoxLayout>
 
 #ifdef __APPLE__
-#   include <OpenCL/opencl.h>
+#   include <OpenCL/cl_gl_ext.h>
+#   include <OpenCL/cl_gl.h>
+#   include <OpenGL/glx.h>
+#   define GL_SHARING_EXTENSION "cl_khr_gl_sharing"
 #else
-#   include <CL/opencl.h>
+#   include <CL/cl_gl_ext.h>
+#   include <CL/cl_gl.h>
+#   include <GL/glx.h>
+#   define GL_SHARING_EXTENSION "cl_khr_gl_sharing"
 #endif
 
 class ReadWrite
@@ -35,6 +41,9 @@ public:
 public slots:
     bool waitForStop() {return true;}
 
+private slots:
+    void newFrame(IplImage *);
+
 protected:
     void initCL();
     void releaseCL();
@@ -47,9 +56,7 @@ private:
     QWidget *_mainWidget;
     QWidget *_configWidget;
 
-    Environment *_environment;
-
-    cl_kernel _kernel;
+    cl_kernel _kernelByteToFloat;
     cl_mem _image;
 
 };

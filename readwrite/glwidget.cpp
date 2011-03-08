@@ -3,7 +3,7 @@
 GlWidget::GlWidget(QWidget *parent) :
     QGLWidget(parent)
 {
-    _temp = NULL;
+    _temp = cvLoadImage("readwrite/test.jpg");
 }
 
 GlWidget::~GlWidget()
@@ -22,6 +22,7 @@ void GlWidget::initializeGL()
     glGenTextures(1, &_inputTextureId);
     glBindTexture(GL_TEXTURE_2D, _inputTextureId);
 
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -30,16 +31,15 @@ void GlWidget::initializeGL()
 
 void GlWidget::paintGL()
 {
-    if (!_temp)
-        return;
 
     qglClearColor(Qt::black);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _inputTextureId);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
             _temp->width, _temp->height, 0, GL_BGR,
             GL_UNSIGNED_BYTE, _temp->imageData);
 
@@ -59,8 +59,6 @@ void GlWidget::paintGL()
 
 void GlWidget::resizeGL(int width, int height)
 {
-    if (!_temp)
-        return;
 
     double projectionMatrixValues[4];
     double scaleMatrixValues[4];
@@ -99,7 +97,6 @@ void GlWidget::resizeGL(int width, int height)
 void GlWidget::newFrame(IplImage *img)
 {
     static int prevWidth = 0, prevHeight = 0;
-
     _temp = img;
 
     if(prevWidth != _temp->width || prevHeight != _temp->height)
