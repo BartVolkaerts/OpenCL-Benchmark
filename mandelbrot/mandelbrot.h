@@ -34,7 +34,12 @@ class Mandelbrot
     public slots:
         void execute();
         void stop();
+        void bufferSizeChanged();
         void calculate();
+
+        void zoomIn(int amount);
+        void zoomOut(int amount);
+        void keyMove(int x, int y);
 
 
     private:
@@ -48,6 +53,11 @@ class Mandelbrot
         QWidget *_configWidget;
 
         cl_mem _texture;
+
+        cl_int _maxIterations;
+        cl_float _minReal;//-2.f;
+        cl_float _maxReal;//1.f;
+        cl_float _minImaginary;//-1.2f;
 };
 
 #endif // MANDELBROT_H

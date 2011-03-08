@@ -5,6 +5,8 @@
 #include <QGLShaderProgram>
 #include <QVector>
 #include <QVector2D>
+#include <QWheelEvent>
+#include <QKeyEvent>
 
 class MandelbrotMainWidget
     : public QGLWidget
@@ -21,9 +23,14 @@ class MandelbrotMainWidget
         void initializeGL();
         void resizeGL(int width, int height);
         void paintGL();
+        void wheelEvent(QWheelEvent *event);
+        void keyPressEvent(QKeyEvent *event);
 
     signals:
         void sizeChanged(int width, int height);
+        void zoomIn(int amount);
+        void zoomOut(int amount);
+        void keyMove(int x, int y);
 
     private:
         QGLShaderProgram *_shaderProgram;
