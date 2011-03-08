@@ -20,6 +20,8 @@ Mandelbrot::Mandelbrot(Environment *environment, QWidget *parent)
             this, SLOT(zoomOut(int)));
     connect(_mainWidget, SIGNAL(keyMove(int, int)),
             this, SLOT(keyMove(int, int)));
+    connect(_mainWidget, SIGNAL(positionChanged(double, double)),
+            this, SLOT(translate(double, double)));
 }
 
 Mandelbrot::~Mandelbrot()
@@ -113,14 +115,12 @@ void Mandelbrot::stop()
     _isRunning = false;
 }
 
-
-
 void Mandelbrot::zoomIn(int amount)
 {
     _maxIterations *= 2;
-    _minReal /= 2.f;
-    _maxReal /= 2.f;
-    _minImaginary /= 2.f;
+    _minReal /= 1.5f;
+    _maxReal /= 1.5f;
+    _minImaginary /= 1.5f;
     qDebug() << "zoomIn()";
     calculate();
 }
@@ -128,9 +128,9 @@ void Mandelbrot::zoomIn(int amount)
 void Mandelbrot::zoomOut(int amount)
 {
     _maxIterations /= 2;
-    _minReal *= 2.f;
-    _maxReal *= 2.f;
-    _minImaginary *= 2.f;
+    _minReal *= 1.5f;
+    _maxReal *= 1.5f;
+    _minImaginary *= 1.5f;
     qDebug() << "zoomOut()";
     calculate();
 }
@@ -147,4 +147,16 @@ void Mandelbrot::keyMove(int x, int y)
     qDebug() << "Move:" << x << ", " << y;
     calculate();
 
+}
+
+void Mandelbrot::translate(double dX, double dY)
+{
+    double xScale = _maxReal - _minReal;
+    double yScale = xScale *
+        ((double)_mainWidget->width() / (double)_mainWidget->height());
+
+    _minReal += xScale * dX;
+    _maxReal += xScale * dX;
+    _minImaginary -= yScale * dY;
+    calculate();
 }

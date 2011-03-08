@@ -1,4 +1,5 @@
 #include <QImage>
+#include <QVector>
 
 #include "mandelbrot_main_widget.h"
 
@@ -6,6 +7,9 @@ MandelbrotMainWidget::MandelbrotMainWidget(QWidget *parent)
     : QGLWidget(parent)
 {
     setFocusPolicy(Qt::ClickFocus);
+    _matrix.setToIdentity();
+    _moveVector.setX(0.0);
+    _moveVector.setY(0.0);
 }
 
 MandelbrotMainWidget::~MandelbrotMainWidget()
@@ -20,7 +24,9 @@ void MandelbrotMainWidget::paintGL()
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _textureId);
 
+    _shaderProgram->setUniformValue("matrix", _matrix);
     _shaderProgram->setUniformValue("texture", 0);
+    _shaderProgram->setUniformValue("move", _moveVector);
 
     _shaderProgram->setAttributeArray("position", _vertexArray.constData());
     _shaderProgram->enableAttributeArray("position");
@@ -49,7 +55,7 @@ void MandelbrotMainWidget::initializeGL()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    // GL_RGBA32UI -> 32 bit per kleur -> CL_RGBA
+    // GL_RGBA -> 4 floats per kleur -> CL_RGBA
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA,
             GL_UNSIGNED_BYTE, 0);
 
@@ -59,7 +65,7 @@ void MandelbrotMainWidget::initializeGL()
 void MandelbrotMainWidget::resizeGL(int width, int height)
 {
     glBindTexture(GL_TEXTURE_2D, _textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32UI, width, height, 0, GL_RGBA, GL_UNSIGNED_INT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_INT, 0);
 
     glViewport(0, 0, width, height);
     emit sizeChanged(width, height);
@@ -84,12 +90,13 @@ void MandelbrotMainWidget::makeShaders()
 
     vertexShaderSource.append("#version 110\n");
     vertexShaderSource.append("attribute vec2 position;\n");
-    vertexShaderSource.append("//uniform mat2 matrix;\n");
+    vertexShaderSource.append("uniform vec2 move;\n");
+    vertexShaderSource.append("uniform mat2 matrix;\n");
     vertexShaderSource.append("varying vec2 texcoord;\n");
     vertexShaderSource.append("void main()\n");
     vertexShaderSource.append("{\n");
     vertexShaderSource.append(
-            "gl_Position = vec4(/*matrix */ position, 0.0, 1.0);\n");
+            "gl_Position = vec4(matrix * (position + move), 0.0, 1.0);\n");
     vertexShaderSource.append("texcoord = vec2(position.x, -position.y) "
             "* vec2(0.5) + vec2(0.5);\n");
     vertexShaderSource.append("}\n");
@@ -157,4 +164,61 @@ void MandelbrotMainWidget::keyPressEvent(QKeyEvent *event)
             emit keyMove(-100, 0);
             break;
     }
+}
+
+void MandelbrotMainWidget::translate(const QPoint &point)
+{
+    QVector2D vector;
+    vector.setX(- ((double)point.x() / (double)width()));
+    vector.setY(((double)point.y() / (double)height()));
+
+    _moveVector += vector;
+
+    updateGL();
+}
+
+void MandelbrotMainWidget::resetTranslation()
+{
+    _moveVector.setX(0.0);
+    _moveVector.setY(0.0);
+}
+
+void MandelbrotMainWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if (!(event->buttons() & Qt::LeftButton))
+    {
+        _prevMousePos = event->pos();
+        event->ignore();
+        return;
+    }
+
+    translate((_prevMousePos - event->pos()) * 2.0);
+    _prevMousePos = event->pos();
+}
+
+void MandelbrotMainWidget::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        _prevMousePos = event->pos();
+        _lastRenderPos = event->pos();
+    }
+    else
+    {
+        event->ignore();
+    }
+}
+
+void MandelbrotMainWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (!(event->button() & Qt::LeftButton))
+    {
+        event->ignore();
+        return;
+    }
+    emit positionChanged(
+        (double)(_lastRenderPos.x() - event->pos().x()) / (double)width(),
+        (double)(_lastRenderPos.y() - event->pos().y()) / (double)height());
+    resetTranslation();
+    updateGL();
 }

@@ -40,6 +40,7 @@ class Mandelbrot
         void zoomIn(int amount);
         void zoomOut(int amount);
         void keyMove(int x, int y);
+        void translate(double dX, double dY);
 
 
     private:
