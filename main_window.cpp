@@ -22,8 +22,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     addBenchmark(FlopsBenchmark::getName(),
             new FlopsBenchmark(_environment, this));
-    addBenchmark("Flops2",
-            new FlopsBenchmark(_environment, this));
     addBenchmark(ReadWrite::getName(),
             new ReadWrite(_environment, this));
     addBenchmark(Galaxy::getName(),

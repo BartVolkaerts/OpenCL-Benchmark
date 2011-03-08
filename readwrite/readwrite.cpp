@@ -120,5 +120,5 @@ QWidget *ReadWrite::getMainWidget()
 
 QString ReadWrite::getName()
 {
-    return QString("OpenCV/OpenCL");
+    return QString("Image processing");
 }
