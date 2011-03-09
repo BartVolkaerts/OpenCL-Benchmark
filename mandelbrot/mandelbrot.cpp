@@ -61,9 +61,9 @@ void Mandelbrot::calculate()
     cl_int2 size;
     cl_int error;
     cl_int maxIterations = 200;
-    cl_float minReal = -1.f;//-2.f;
-    cl_float maxReal = 0.5f;//1.f;
-    cl_float minImaginary = -.6f;//-1.2f;
+    cl_double minReal = -1.f;//-2.f;
+    cl_double maxReal = 0.5f;//1.f;
+    cl_double minImaginary = -.6f;//-1.2f;
 
     // CL Image from GL texture
 #if 0
@@ -79,9 +79,9 @@ void Mandelbrot::calculate()
     CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_texture));
     CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_int2), &size));
     CHECK_ERR(clSetKernelArg(_kernel, 2, sizeof(cl_int), &_maxIterations));
-    CHECK_ERR(clSetKernelArg(_kernel, 3, sizeof(cl_float), &_minReal));
-    CHECK_ERR(clSetKernelArg(_kernel, 4, sizeof(cl_float), &_maxReal));
-    CHECK_ERR(clSetKernelArg(_kernel, 5, sizeof(cl_float), &_minImaginary));
+    CHECK_ERR(clSetKernelArg(_kernel, 3, sizeof(cl_double), &_minReal));
+    CHECK_ERR(clSetKernelArg(_kernel, 4, sizeof(cl_double), &_maxReal));
+    CHECK_ERR(clSetKernelArg(_kernel, 5, sizeof(cl_double), &_minImaginary));
 
 
     CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 1,
@@ -152,11 +152,11 @@ void Mandelbrot::keyMove(int x, int y)
 {
     if (x)
     {
-        _minReal += ((float)_maxIterations / 100.f) / x;
-        _maxReal += ((float)_maxIterations / 100.f) / x;
+        _minReal += ((double)_maxIterations / 100.f) / x;
+        _maxReal += ((double)_maxIterations / 100.f) / x;
     }
     if (y)
-        _minImaginary += ((float)_maxIterations /400.f) / y;
+        _minImaginary += ((double)_maxIterations /400.f) / y;
     qDebug() << "Move:" << x << ", " << y;
     calculate();
 

@@ -55,9 +55,9 @@ class Mandelbrot
         cl_mem _texture;
 
         cl_int _maxIterations;
-        cl_float _minReal;//-2.f;
-        cl_float _maxReal;//1.f;
-        cl_float _minImaginary;//-1.2f;
+        cl_double _minReal;//-2.f;
+        cl_double _maxReal;//1.f;
+        cl_double _minImaginary;//-1.2f;
 };
 
 #endif // MANDELBROT_H
