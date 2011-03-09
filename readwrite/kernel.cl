@@ -1,9 +1,9 @@
-__kernel void byteToFloat(__global float4 *output)
+#pragma OPENCL_EXTENSION cl_khr_byte_addressable_store : enable
+
+__kernel void byteToFloat(__global const uchar *data, __global uchar *newdata)
 {
     const int posX = get_global_id(0);
-    if (posX<10)
-    {
-        output[posX].x = 0.6f;
-        output[posX].y = 0.3f;
-    }
+    newdata = data;
+    if (posX < 20000)
+        newdata[posX]-= 100;
 }
