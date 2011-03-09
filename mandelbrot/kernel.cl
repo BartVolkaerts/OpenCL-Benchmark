@@ -1,4 +1,7 @@
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable 
+#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+#ifndef CALC_TYPE
+#   define CALC_TYPE double
+#endif
 #define MIN_REAL -2.0
 #define MAX_REAL 1.0
 #define MIN_IMAGINARY -1.2
@@ -8,15 +11,15 @@
 #define MAX_ITERATIONS 200
 
 #define IMAGINARY_POS(y, height)\
-    (double)(MAX_IMAGINARY -\
-    (y) * ((MAX_IMAGINARY - minImaginary) / (double)((height) - 1)))
+    (CALC_TYPE)(MAX_IMAGINARY -\
+    (y) * ((MAX_IMAGINARY - minImaginary) / (CALC_TYPE)((height) - 1)))
 
 #define REAL_POS(x, width)\
-    (double)(minReal + (x) * ((maxReal - minReal) / (double)((width) - 1)))
+    (CALC_TYPE)(minReal + (x) * ((maxReal - minReal) / (CALC_TYPE)((width) - 1)))
 
 __kernel void calculate(__write_only image2d_t texture, const int2 size,
-        const int maxIterations, const double minReal, const double maxReal,
-        const double minImaginary)
+        const int maxIterations, const CALC_TYPE minReal, const CALC_TYPE maxReal,
+        const CALC_TYPE minImaginary)
 {
     const int posX = get_global_id(0);
     const int posY = get_global_id(1);
@@ -24,10 +27,10 @@ __kernel void calculate(__write_only image2d_t texture, const int2 size,
     if (posX >= size.x || posY >= size.y)
         return;
 
-    double imaginaryNumber = IMAGINARY_POS(posY, get_image_height(texture));//getImaginary(posY, get_image_height(texture));
-    double realNumber = REAL_POS(posX, get_image_width(texture));//getReal(posX, get_image_width(texture));
-    double zReal, zImaginary, tmp;
-    double zRealSquared, zImaginarySquared;
+    CALC_TYPE imaginaryNumber = IMAGINARY_POS(posY, get_image_height(texture));//getImaginary(posY, get_image_height(texture));
+    CALC_TYPE realNumber = REAL_POS(posX, get_image_width(texture));//getReal(posX, get_image_width(texture));
+    CALC_TYPE zReal, zImaginary, tmp;
+    CALC_TYPE zRealSquared, zImaginarySquared;
     float color;
     bool isInside = true;
 
