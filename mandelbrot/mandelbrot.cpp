@@ -5,7 +5,7 @@ Mandelbrot::Mandelbrot(Environment *environment, QWidget *parent)
     : BaseBenchmark(environment, parent)
 {
     _mainWidget = new MandelbrotMainWidget(parent);
-    _configWidget = new QLabel("Mandelbrot", parent);
+    _configWidget = new MandelbrotConfigWidget(parent);
 
     _maxIterations = 300;
     _minReal = -2.f;

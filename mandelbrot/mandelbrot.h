@@ -3,6 +3,7 @@
 
 #include "../base_benchmark.h"
 #include "mandelbrot_main_widget.h"
+#include "mandelbrot_config_widget.h"
 
 #ifdef __APPLE__
 #   include <OpenCL/cl_gl_ext.h>
@@ -50,7 +51,7 @@ class Mandelbrot
 
         cl_kernel _kernel;
         MandelbrotMainWidget *_mainWidget;
-        QWidget *_configWidget;
+        MandelbrotConfigWidget *_configWidget;
 
         cl_mem _texture;
 

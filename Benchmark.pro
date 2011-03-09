@@ -27,6 +27,7 @@ HEADERS +=\
     readwrite/readwriteconfigwidget.h\
     mandelbrot/mandelbrot.h\
     mandelbrot/mandelbrot_main_widget.h\
+    mandelbrot/mandelbrot_config_widget.h\
 
 SOURCES +=\
     main.cpp\
@@ -45,8 +46,10 @@ SOURCES +=\
     readwrite/readwriteconfigwidget.cpp\
     mandelbrot/mandelbrot.cpp\
     mandelbrot/mandelbrot_main_widget.cpp\
+    mandelbrot/mandelbrot_config_widget.cpp\
 
 FORMS += main_window.ui\
     flops/flops_main_widget.ui\
     flops/flops_config_widget.ui\
-    readwrite/readwriteconfigwidget.ui
+    readwrite/readwriteconfigwidget.ui\
+    mandelbrot/mandelbrot_config_widget.ui\
