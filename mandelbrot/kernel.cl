@@ -56,13 +56,13 @@ __kernel void calculate(__write_only image2d_t texture, const int2 size,
         float4 renderColor = (float4)(0.f, 0.f, 0.f, 0.f);
         // Red
         if (color < 1.f)
-            renderColor.x = color;
+            renderColor.x = -color + 1.f;
         // Blue
         if (color > 1.f)
-            renderColor.y = color - 1.f;
+            renderColor.y = (-color + 1.f) + 1.f;
         // Green
         if (color > 0.5f && color < 1.5f)
-            renderColor.z = color - 0.5f;
+            renderColor.z = (-color + 0.5f) + 1.f;
 
         write_imagef(texture, (int2)(posX, posY), renderColor);
     }

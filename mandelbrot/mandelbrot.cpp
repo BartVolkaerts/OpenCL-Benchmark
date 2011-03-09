@@ -7,10 +7,11 @@ Mandelbrot::Mandelbrot(Environment *environment, QWidget *parent)
     _mainWidget = new MandelbrotMainWidget(parent);
     _configWidget = new QLabel("Mandelbrot", parent);
 
-    _maxIterations = 200;
+    _maxIterations = 300;
     _minReal = -2.f;
     _maxReal = 1.f;
     _minImaginary = -1.2f;
+    _isRunning = false;
 
     connect(_mainWidget, SIGNAL(sizeChanged(int, int)),
             this, SLOT(bufferSizeChanged()));
@@ -117,21 +118,32 @@ void Mandelbrot::stop()
 
 void Mandelbrot::zoomIn(int amount)
 {
-    _maxIterations *= 2;
-    _minReal /= 1.5f;
-    _maxReal /= 1.5f;
-    _minImaginary /= 1.5f;
-    qDebug() << "zoomIn()";
+    //_maxIterations *= 2;
+    float realRange = _maxReal - _minReal;
+    float imaginaryRange = realRange *
+        ((float)_mainWidget->width() / (float)_mainWidget->height());
+    realRange /= 2;
+    imaginaryRange /= 2;
+
+    _minReal += realRange / 2.f;
+    _maxReal -= realRange / 2.f;
+
+    _minImaginary += imaginaryRange / 2.f;
+
     calculate();
 }
 
 void Mandelbrot::zoomOut(int amount)
 {
-    _maxIterations /= 2;
-    _minReal *= 1.5f;
-    _maxReal *= 1.5f;
-    _minImaginary *= 1.5f;
-    qDebug() << "zoomOut()";
+    float realRange = _maxReal - _minReal;
+    float imaginaryRange = realRange *
+        ((float)_mainWidget->width() / (float)_mainWidget->height());
+    realRange /= 2;
+    imaginaryRange /= 2;
+
+    _minReal -= realRange / 2.f;
+    _maxReal += realRange / 2.f;
+    _minImaginary -= imaginaryRange / 2.f;
     calculate();
 }
 
