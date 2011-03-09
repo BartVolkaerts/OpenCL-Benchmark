@@ -1,3 +1,4 @@
+#pragma OPENCL EXTENSION cl_khr_fp64 : enable 
 #define MIN_REAL -2.0
 #define MAX_REAL 1.0
 #define MIN_IMAGINARY -1.2

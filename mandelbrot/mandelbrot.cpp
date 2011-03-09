@@ -33,6 +33,7 @@ void Mandelbrot::initCL()
 {
     cl_int error;
     _environment->createGLContext();
+    qDebug() << _environment->getDeviceExtensions();
     _environment->createProgram(QStringList("mandelbrot/kernel.cl"));
     _kernel = _environment->getKernel("calculate");
 
@@ -119,9 +120,9 @@ void Mandelbrot::stop()
 void Mandelbrot::zoomIn(int amount)
 {
     //_maxIterations *= 2;
-    float realRange = _maxReal - _minReal;
-    float imaginaryRange = realRange *
-        ((float)_mainWidget->width() / (float)_mainWidget->height());
+    double realRange = _maxReal - _minReal;
+    double imaginaryRange = realRange *
+        ((double)_mainWidget->width() / (double)_mainWidget->height());
     realRange /= 2;
     imaginaryRange /= 2;
 
@@ -135,9 +136,9 @@ void Mandelbrot::zoomIn(int amount)
 
 void Mandelbrot::zoomOut(int amount)
 {
-    float realRange = _maxReal - _minReal;
-    float imaginaryRange = realRange *
-        ((float)_mainWidget->width() / (float)_mainWidget->height());
+    double realRange = _maxReal - _minReal;
+    double imaginaryRange = realRange *
+        ((double)_mainWidget->width() / (double)_mainWidget->height());
     realRange /= 2;
     imaginaryRange /= 2;
 

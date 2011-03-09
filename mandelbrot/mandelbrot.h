@@ -16,7 +16,6 @@
 #   define GL_SHARING_EXTENSION "cl_khr_gl_sharing"
 #endif
 
-
 class Mandelbrot
     : public BaseBenchmark
 {

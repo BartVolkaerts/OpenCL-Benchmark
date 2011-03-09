@@ -202,6 +202,19 @@ QString Environment::getDeviceName(cl_device_id device)
     return result;
 }
 
+QString Environment::getDeviceExtensions()
+{
+    size_t stringSize;
+    char *parameter;
+    CHECK_ERR(clGetDeviceInfo(_currentDevice, CL_DEVICE_EXTENSIONS, 0, NULL, &stringSize));
+    parameter = new char[stringSize];
+    CHECK_ERR(clGetDeviceInfo(_currentDevice, CL_DEVICE_EXTENSIONS, stringSize,
+                (void *)parameter, NULL));
+    QString result(parameter);
+    delete[] parameter;
+    return result;
+}
+
 size_t Environment::getDeviceMaxWorkGroupSize()
 {
     size_t result;
