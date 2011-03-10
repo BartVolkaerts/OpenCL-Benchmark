@@ -4,6 +4,7 @@
 Mandelbrot::Mandelbrot(Environment *environment, QWidget *parent)
     : BaseBenchmark(environment, parent)
 {
+    _texture = NULL;
     _mainWidget = new MandelbrotMainWidget(parent);
     _configWidget = new MandelbrotConfigWidget(parent);
 
@@ -56,20 +57,23 @@ void Mandelbrot::initCL()
 
 void Mandelbrot::releaseCL()
 {
-    CHECK_ERR(clReleaseMemObject(_texture));
+    if (_texture)
+        CHECK_ERR(clReleaseMemObject(_texture));
 }
 
 void Mandelbrot::bufferSizeChanged()
 {
     if (!_isRunning)
         return;
-#if 1
+
     cl_int error;
+    if (_texture)
+        CHECK_ERR(clReleaseMemObject(_texture));
+
     _texture = clCreateFromGLTexture2D(_environment->getContext(),
             CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
             _mainWidget->getTexture(), &error);
     CHECK_ERR(error);
-#endif
 
     calculate();
 }
@@ -80,15 +84,8 @@ void Mandelbrot::calculate()
         return;
 
     cl_int2 size;
+    cl_int error;
     QApplication::setOverrideCursor(Qt::WaitCursor);
-
-    // CL Image from GL texture
-#if 0
-    _texture = clCreateFromGLTexture2D(_environment->getContext(),
-            CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
-            _mainWidget->getTexture(), &error);
-    CHECK_ERR(error);
-#endif
 
     size.x = _mainWidget->width();
     size.y = _mainWidget->height();
