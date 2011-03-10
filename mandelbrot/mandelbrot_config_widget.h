@@ -12,18 +12,19 @@ class MandelbrotConfigWidget
         MandelbrotConfigWidget(QWidget *parent = 0);
         virtual ~MandelbrotConfigWidget();
 
-        int getMaxIterations();
-        int getDataType();
+        int getMaxIterations() const;
+        bool useDouble() const;
 
         void setResolution(int x, int y);
         void setRenderTime(double sec);
+        void supportDouble(bool supportDouble);
 
+    public slots:
+        void setRunning(bool isRunning);
 
-        enum
-        {
-            DOUBLE,
-            FLOAT
-        };
+    signals:
+        void maxIterationsChanged(int iterations);
+        void recalculate();
 
     private:
         Ui::MandelbrotConfigWidget ui;

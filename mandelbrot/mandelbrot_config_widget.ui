@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>270</width>
-    <height>204</height>
+    <width>417</width>
+    <height>215</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -50,6 +50,13 @@
       <item row="1" column="1">
        <widget class="QComboBox" name="dataTypeComboBox"/>
       </item>
+      <item row="2" column="1">
+       <widget class="QPushButton" name="recalculateButton">
+        <property name="text">
+         <string>Recalculate</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -59,6 +66,9 @@
       <string>Statisitics</string>
      </property>
      <layout class="QFormLayout" name="formLayout_2">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="resolutionLabel">
         <property name="text">
@@ -76,14 +86,14 @@
       <item row="1" column="0">
        <widget class="QLabel" name="renderTimeLabel">
         <property name="text">
-         <string>Render time:</string>
+         <string>Last render time:</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLabel" name="renderTimeValuelabel">
+       <widget class="QLabel" name="renderTimeValueLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>N/A</string>
         </property>
        </widget>
       </item>

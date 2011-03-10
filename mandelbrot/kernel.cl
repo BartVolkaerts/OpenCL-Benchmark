@@ -1,7 +1,10 @@
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
-#ifndef CALC_TYPE
+#ifdef USE_DOUBLE
+#   pragma OPENCL EXTENSION cl_khr_fp64 : enable
 #   define CALC_TYPE double
+#else
+#   define CALC_TYPE float
 #endif
+
 #define MIN_REAL -2.0
 #define MAX_REAL 1.0
 #define MIN_IMAGINARY -1.2

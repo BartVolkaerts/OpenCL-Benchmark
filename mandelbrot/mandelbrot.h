@@ -42,6 +42,7 @@ class Mandelbrot
         void keyMove(int x, int y);
         void translate(double dX, double dY);
 
+        void setMaxIterations(int iterations);
 
     private:
         void initCL();
@@ -56,9 +57,10 @@ class Mandelbrot
         cl_mem _texture;
 
         cl_int _maxIterations;
-        cl_double _minReal;//-2.f;
-        cl_double _maxReal;//1.f;
-        cl_double _minImaginary;//-1.2f;
+
+        cl_double _minReal;
+        cl_double _maxReal;
+        cl_double _minImaginary;
 };
 
 #endif // MANDELBROT_H

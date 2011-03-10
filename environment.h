@@ -37,7 +37,8 @@ class Environment
         virtual ~Environment();
 
         // Program methods:
-        void createProgram(QStringList filenames);
+        void createProgram(QStringList filenames,
+                QString options = QString());
         cl_kernel getKernel(QString name);
 
         // Command Queue methods:
@@ -60,6 +61,7 @@ class Environment
         size_t getDeviceMaxWorkGroupSize();
         size_t getDeviceMaxGlobalMemory();
         QString getDeviceExtensions();
+        bool deviceSupportsDouble();
 
         // Platform methods:
         cl_platform_id getCurrentPlatform();

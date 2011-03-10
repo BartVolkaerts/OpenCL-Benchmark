@@ -99,17 +99,17 @@ void MainWindow::stopBenchmark()
 
 void MainWindow::setBenchmarkRunningLock(bool locked)
 {
+#if 0
     if (locked)
         QApplication::setOverrideCursor(Qt::WaitCursor);
     else
         QApplication::restoreOverrideCursor();
+#endif
 
     ui.startButton->setEnabled(!locked);
     ui.stopButton->setEnabled(locked);
     ui.benchmarkList->setEnabled(!locked);
     ui.hardwareWidget->setEnabled(!locked);
-    ui.benchmarkWidget->setEnabled(!locked);
-
 }
 
 void MainWindow::setDevicesBox()

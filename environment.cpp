@@ -37,10 +37,11 @@ cl_kernel Environment::getKernel(QString name)
     return kernel;
 }
 
-void Environment::createProgram(QStringList filenames)
+void Environment::createProgram(QStringList filenames, QString options)
 {
     char **sources = new char *[filenames.count()];
     size_t *sizes = new size_t[filenames.count()];
+    const char *optionsArray = NULL;
     cl_int error;
 
     for (int i = 0; i < filenames.size(); ++i)
@@ -54,7 +55,10 @@ void Environment::createProgram(QStringList filenames)
             (const char **)sources, sizes, &error);
     CHECK_ERR(error);
 
-    error = clBuildProgram(_program, 1, &_currentDevice, NULL, NULL, NULL);
+    if (!options.isNull())
+        optionsArray = options.toAscii().constData();
+
+    error = clBuildProgram(_program, 1, &_currentDevice, optionsArray, NULL, NULL);
     if (error != CL_SUCCESS)
         printBuildLog();
     CHECK_ERR(error);
@@ -213,6 +217,12 @@ QString Environment::getDeviceExtensions()
     QString result(parameter);
     delete[] parameter;
     return result;
+}
+
+bool Environment::deviceSupportsDouble()
+{
+    QString extensions = getDeviceExtensions();
+    return extensions.contains("cl_khr_fp64");
 }
 
 size_t Environment::getDeviceMaxWorkGroupSize()
