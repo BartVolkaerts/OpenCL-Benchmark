@@ -1,6 +1,7 @@
 #include "main_window.h"
 
 #include <QVBoxLayout>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -38,6 +39,10 @@ MainWindow::MainWindow(QWidget *parent)
             this, SLOT(launchBenchmark()));
     connect(ui.stopButton, SIGNAL(clicked()),
             this, SLOT(stopBenchmark()));
+    connect(ui.actionAbout, SIGNAL(triggered()),
+            this, SLOT(showAbout()));
+    connect(ui.actionQuit, SIGNAL(triggered()),
+            this, SLOT(close()));
 }
 
 MainWindow::~MainWindow()
@@ -143,4 +148,19 @@ void MainWindow::deviceBoxChanged(const QString &)
 BaseBenchmark *MainWindow::getSelectedBenchmark()
 {
         return _currentBenchmark;
+}
+
+void MainWindow::showAbout()
+{
+    QString aboutMessage(
+            "<h1>About this benchmark</h1>"
+            "<p>This program is written as part of or final project at the "
+            "denayer instituut in Sint -Katelijne Waver.<p>"
+            "<h2>Authors:</h2>"
+            "<ul>"
+            "<li>Bart Volkaers</li>"
+            "<li>Wiebe Van Ranst - wiebevr@gmail.com</li>"
+            "</ul>");
+
+    QMessageBox::about(this, "About this benchmark", aboutMessage);
 }

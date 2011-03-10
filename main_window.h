@@ -31,6 +31,7 @@ class MainWindow
         void launchBenchmark();
         void stopBenchmark();
         void setBenchmarkWidgets(const QString &benchmark);
+        void showAbout();
 
     private:
         BaseBenchmark *getSelectedBenchmark();

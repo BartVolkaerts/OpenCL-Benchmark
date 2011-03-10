@@ -84,7 +84,6 @@ void Mandelbrot::calculate()
         return;
 
     cl_int2 size;
-    cl_int error;
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     size.x = _mainWidget->width();
@@ -120,7 +119,6 @@ void Mandelbrot::calculate()
         (_mainWidget->width() / localWorkSize[0] + 1) * localWorkSize[0],
         (_mainWidget->height() / localWorkSize[1] + 1) * localWorkSize[1]
     };
-    qDebug() << totalWorkItems[0] << totalWorkItems[1];
 
     startTimeMeasure();
     CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(),
