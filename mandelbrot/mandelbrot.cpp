@@ -155,7 +155,7 @@ void Mandelbrot::stop()
     _configWidget->setRunning(false);
 }
 
-void Mandelbrot::zoomIn(int amount)
+void Mandelbrot::zoomIn(int)
 {
     //_maxIterations *= 2;
     double realRange = _maxReal - _minReal;
@@ -172,7 +172,7 @@ void Mandelbrot::zoomIn(int amount)
     calculate();
 }
 
-void Mandelbrot::zoomOut(int amount)
+void Mandelbrot::zoomOut(int)
 {
     double realRange = _maxReal - _minReal;
     double imaginaryRange = realRange *
