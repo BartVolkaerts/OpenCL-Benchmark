@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui.benchmarkList->addItems(_benchmarks.keys());
     ui.centralwidget->setLayout(new QVBoxLayout());
+    ui.centralwidget->layout()->setAlignment(Qt::AlignHCenter);
 
     connect(ui.benchmarkList, SIGNAL(currentTextChanged(const QString &)),
             this, SLOT(setBenchmarkWidgets(const QString &)));
@@ -55,6 +56,8 @@ void MainWindow::addBenchmark(const QString &name, BaseBenchmark *benchmark)
     _benchmarks.insert(name, benchmark);
     benchmark->getMainWidget()->setVisible(false);
     benchmark->getConfigWidget()->setVisible(false);
+    benchmark->getMainWidget()->setSizePolicy(QSizePolicy::Expanding,
+            QSizePolicy::Expanding);
 }
 
 void MainWindow::setBenchmarkWidgets(const QString &benchmark)

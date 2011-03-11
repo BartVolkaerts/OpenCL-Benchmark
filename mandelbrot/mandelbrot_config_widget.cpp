@@ -10,6 +10,12 @@ MandelbrotConfigWidget::MandelbrotConfigWidget(QWidget *parent)
             this, SIGNAL(maxIterationsChanged(int)));
     connect(ui.recalculateButton, SIGNAL(clicked()),
             this, SIGNAL(recalculate()));
+    connect(ui.fixedSizeToggleButton, SIGNAL(clicked()),
+            this, SLOT(updateFixedSize()));
+    connect(ui.setWindowWidthSpinBox, SIGNAL(valueChanged(int)),
+            this, SLOT(updateFixedSize()));
+    connect(ui.setWindowHeightSpinBox, SIGNAL(valueChanged(int)),
+            this, SLOT(updateFixedSize()));
 }
 
 MandelbrotConfigWidget::~MandelbrotConfigWidget()
@@ -48,4 +54,11 @@ void MandelbrotConfigWidget::setRunning(bool isRunning)
 {
     ui.dataTypeComboBox->setEnabled(!isRunning);
     ui.recalculateButton->setEnabled(isRunning);
+}
+
+void MandelbrotConfigWidget::updateFixedSize()
+{
+    emit setFixedSize(ui.fixedSizeToggleButton->isChecked(),
+            ui.setWindowWidthSpinBox->value(),
+            ui.setWindowHeightSpinBox->value());
 }

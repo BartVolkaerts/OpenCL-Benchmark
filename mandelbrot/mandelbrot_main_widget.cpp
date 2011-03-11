@@ -232,3 +232,21 @@ void MandelbrotMainWidget::mouseReleaseEvent(QMouseEvent *event)
     resetTranslation();
     updateGL();
 }
+
+void MandelbrotMainWidget::setFixedSize(bool isFixed, int width, int height)
+{
+    if (isFixed)
+    {
+        this->setMinimumHeight(height);
+        this->setMaximumHeight(height);
+        this->setMinimumWidth(width);
+        this->setMaximumWidth(width);
+    }
+    else
+    {
+        this->setMinimumHeight(0);
+        this->setMaximumHeight(QWIDGETSIZE_MAX);
+        this->setMinimumWidth(0);
+        this->setMaximumWidth(QWIDGETSIZE_MAX);
+    }
+}

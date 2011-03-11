@@ -31,6 +31,8 @@ Mandelbrot::Mandelbrot(Environment *environment, QWidget *parent)
             this, SLOT(setMaxIterations(int)));
     connect(_configWidget, SIGNAL(recalculate()),
             this, SLOT(calculate()));
+    connect(_configWidget, SIGNAL(setFixedSize(bool, int, int)),
+            _mainWidget, SLOT(setFixedSize(bool, int, int)));
 }
 
 Mandelbrot::~Mandelbrot()
@@ -43,7 +45,8 @@ void Mandelbrot::initCL()
     _environment->createGLContext();
 
     if (_configWidget->useDouble())
-        _environment->createProgram(QStringList("mandelbrot/kernel.cl"), "-D USE_DOUBLE");
+        _environment->createProgram(QStringList("mandelbrot/kernel.cl"),
+                "-D USE_DOUBLE");
     else
         _environment->createProgram(QStringList("mandelbrot/kernel.cl"));
 
@@ -74,6 +77,8 @@ void Mandelbrot::bufferSizeChanged()
             CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
             _mainWidget->getTexture(), &error);
     CHECK_ERR(error);
+
+    _configWidget->setResolution(_mainWidget->width(), _mainWidget->height());
 
     calculate();
 }

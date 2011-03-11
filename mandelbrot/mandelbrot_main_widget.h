@@ -24,6 +24,9 @@ class MandelbrotMainWidget
         void translate(const QPoint &point);
         void resetTranslation();
 
+    public slots:
+        void setFixedSize(bool isFixed, int width, int heigth);
+
     protected:
         void initializeGL();
         void resizeGL(int width, int height);

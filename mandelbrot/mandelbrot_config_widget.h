@@ -21,10 +21,12 @@ class MandelbrotConfigWidget
 
     public slots:
         void setRunning(bool isRunning);
+        void updateFixedSize();
 
     signals:
         void maxIterationsChanged(int iterations);
         void recalculate();
+        void setFixedSize(bool isFixed, int width, int height);
 
     private:
         Ui::MandelbrotConfigWidget ui;
