@@ -49,6 +49,7 @@ class Environment
         void createContext();
         void createGLContext();
         cl_context getContext();
+        int getContextReferenceCount();
 
         // Device methods:
         cl_device_id getCurrentDevice();

@@ -52,6 +52,7 @@ void Mandelbrot::initCL()
 
     _kernel = _environment->getKernel("calculate");
 
+    _mainWidget->recreateTexture(_mainWidget->width(), _mainWidget->height());
     _texture = clCreateFromGLTexture2D(_environment->getContext(),
             CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
             _mainWidget->getTexture(), &error);
@@ -62,6 +63,9 @@ void Mandelbrot::releaseCL()
 {
     if (_texture)
         CHECK_ERR(clReleaseMemObject(_texture));
+
+    if (_kernel)
+        CHECK_ERR(clReleaseKernel(_kernel));
 }
 
 void Mandelbrot::bufferSizeChanged()
@@ -72,6 +76,7 @@ void Mandelbrot::bufferSizeChanged()
     cl_int error;
     if (_texture)
         CHECK_ERR(clReleaseMemObject(_texture));
+
 
     _texture = clCreateFromGLTexture2D(_environment->getContext(),
             CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,

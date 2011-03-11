@@ -135,6 +135,7 @@ void Environment::createGLContext()
 {
     // TODO: Works only on linux, impliment on multiple platforms.
     cl_int error;
+
     if (_context)
         CHECK_ERR(clReleaseContext(_context));
     cl_context_properties props[] =
@@ -152,6 +153,14 @@ void Environment::createGLContext()
 cl_context Environment::getContext()
 {
     return _context;
+}
+
+int Environment::getContextReferenceCount()
+{
+    int count;
+    CHECK_ERR(clGetContextInfo(_context, CL_CONTEXT_REFERENCE_COUNT, sizeof(int),
+            &count, NULL));
+    return count;
 }
 
 // Devices:

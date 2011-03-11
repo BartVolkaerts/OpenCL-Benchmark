@@ -2,6 +2,8 @@ TARGET = Benchmark
 
 QT += opengl
 
+#DEFINES += GL_SHARING_EXTENSION="cl_khr_gl_sharing"
+
 unix:LIBS += -lOpenCL -levent -lqwt -lm -lopencv_core -lopencv_highgui
 unix:INCLUDEPATH += /usr/include/qwt
 unix:DEFINES += GL_GLEXT_PROTOTYPES

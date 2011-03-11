@@ -23,6 +23,7 @@ class MandelbrotMainWidget
         GLuint getTexture() const { return _textureId; }
         void translate(const QPoint &point);
         void resetTranslation();
+        void recreateTexture(int width, int height);
 
     public slots:
         void setFixedSize(bool isFixed, int width, int heigth);

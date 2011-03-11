@@ -64,6 +64,14 @@ void MandelbrotMainWidget::initializeGL()
 
 void MandelbrotMainWidget::resizeGL(int width, int height)
 {
+    recreateTexture(width, height);
+
+    glViewport(0, 0, width, height);
+    emit sizeChanged(width, height);
+}
+
+void MandelbrotMainWidget::recreateTexture(int width, int height)
+{
     glDeleteTextures(1, &_textureId);
 
     glGenTextures(1, &_textureId);
@@ -77,8 +85,6 @@ void MandelbrotMainWidget::resizeGL(int width, int height)
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_INT, 0);
 
-    glViewport(0, 0, width, height);
-    emit sizeChanged(width, height);
 }
 
 void MandelbrotMainWidget::makeGeometry()
