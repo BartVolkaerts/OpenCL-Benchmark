@@ -172,7 +172,7 @@ void Mandelbrot::zoomIn(int)
     _minReal += realRange / 2.f;
     _maxReal -= realRange / 2.f;
 
-    _minImaginary += imaginaryRange / 2.f;
+    _minImaginary += imaginaryRange / 4.f;
 
     calculate();
 }
@@ -187,7 +187,7 @@ void Mandelbrot::zoomOut(int)
 
     _minReal -= realRange / 2.f;
     _maxReal += realRange / 2.f;
-    _minImaginary -= imaginaryRange / 2.f;
+    _minImaginary -= imaginaryRange / 4.f;
     calculate();
 }
 
