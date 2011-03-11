@@ -11,10 +11,8 @@ Mandelbrot::Mandelbrot(Environment *environment, QWidget *parent)
     _configWidget->setResolution(_mainWidget->width(), _mainWidget->height());
     _configWidget->supportDouble(_environment->deviceSupportsDouble());
 
+    setStartingBoundaries();
     _maxIterations = _configWidget->getMaxIterations();
-    _minReal = -2.f;
-    _maxReal = 1.f;
-    _minImaginary = -1.2f;
     _isRunning = false;
 
     connect(_mainWidget, SIGNAL(sizeChanged(int, int)),
@@ -40,8 +38,16 @@ Mandelbrot::~Mandelbrot()
     releaseCL();
 }
 
+void Mandelbrot::setStartingBoundaries()
+{
+    _minReal = -2.f;
+    _maxReal = 1.f;
+    _minImaginary = -1.2f;
+}
+
 void Mandelbrot::initCL()
 {
+    setStartingBoundaries();
     cl_int error;
     _environment->createGLContext();
 

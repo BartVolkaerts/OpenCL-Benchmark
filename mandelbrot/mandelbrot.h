@@ -47,6 +47,7 @@ class Mandelbrot
     private:
         void initCL();
         void releaseCL();
+        void setStartingBoundaries();
 
         bool _isRunning;
 
