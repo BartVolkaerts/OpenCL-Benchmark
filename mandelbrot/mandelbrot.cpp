@@ -37,6 +37,7 @@ Mandelbrot::Mandelbrot(Environment *environment, QWidget *parent)
 
 Mandelbrot::~Mandelbrot()
 {
+    releaseCL();
 }
 
 void Mandelbrot::initCL()
