@@ -10,6 +10,7 @@ MandelbrotMainWidget::MandelbrotMainWidget(QWidget *parent)
     _matrix.setToIdentity();
     _moveVector.setX(0.0);
     _moveVector.setY(0.0);
+    setCursor(Qt::OpenHandCursor);
 }
 
 MandelbrotMainWidget::~MandelbrotMainWidget()
@@ -218,6 +219,7 @@ void MandelbrotMainWidget::mousePressEvent(QMouseEvent *event)
     {
         _prevMousePos = event->pos();
         _lastRenderPos = event->pos();
+        setCursor(Qt::ClosedHandCursor);
     }
     else
     {
@@ -237,6 +239,7 @@ void MandelbrotMainWidget::mouseReleaseEvent(QMouseEvent *event)
         (double)(_lastRenderPos.y() - event->pos().y()) /
             (double)(height() * 2));
     resetTranslation();
+    setCursor(Qt::OpenHandCursor);
     updateGL();
 }
 
