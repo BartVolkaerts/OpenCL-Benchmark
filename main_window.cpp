@@ -85,10 +85,11 @@ void MainWindow::setBenchmarkWidgets(const QString &benchmark)
 
 void MainWindow::launchBenchmark()
 {
-    setBenchmarkRunningLock(true);
     BaseBenchmark *benchmark = getSelectedBenchmark();
-    if (benchmark)
-        benchmark->execute();
+    if (!benchmark)
+        return;
+    setBenchmarkRunningLock(true);
+    benchmark->execute();
     if (!benchmark->waitForStop())
         setBenchmarkRunningLock(false);
 }
