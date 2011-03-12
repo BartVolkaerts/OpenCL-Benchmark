@@ -18,9 +18,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui.deviceBox, SIGNAL(currentIndexChanged(const QString &)),
             this, SLOT(deviceBoxChanged(const QString &)));
 
-    _environment->createContext();
-    _environment->createCommandQueue();
-
     addBenchmark(FlopsBenchmark::getName(),
             new FlopsBenchmark(_environment, this));
     addBenchmark(ReadWrite::getName(),
