@@ -27,6 +27,10 @@ void GlWidget::initializeGL()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+            _temp->width, _temp->height, 0, GL_BGR,
+            GL_UNSIGNED_BYTE, _temp->imageData);
 }
 
 void GlWidget::paintGL()
@@ -37,11 +41,6 @@ void GlWidget::paintGL()
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _inputTextureId);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-            _temp->width, _temp->height, 0, GL_BGR,
-            GL_UNSIGNED_BYTE, _temp->imageData);
 
     _shaderProgram->setUniformValue("texture", 0);
 
@@ -105,7 +104,12 @@ void GlWidget::newFrame(IplImage *img)
     prevWidth = _temp->width;
     prevHeight = _temp->height;
 
-    updateGL();
+    glBindTexture(GL_TEXTURE_2D, _inputTextureId);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+            _temp->width, _temp->height, 0, GL_BGR,
+            GL_UNSIGNED_BYTE, _temp->imageData);
 }
 
 void GlWidget::makeGeometry()

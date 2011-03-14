@@ -10,12 +10,11 @@ ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
     _vLayout->addWidget(_glWidget = new GlWidget());
     _mainWidget->setLayout(_vLayout);
 
-    _kernelByteToFloat = NULL;
+    _kernel = NULL;
 
     connect(_source, SIGNAL(frame(IplImage*)), this, SLOT(newFrame(IplImage*)));
     connect(_configWidget, SIGNAL(changedevice(bool)), _source, SLOT(changeDevice(bool)));
     connect(_configWidget, SIGNAL(fileName(QString)), _source, SLOT(fileName(QString)));
-
 }
 
 ReadWrite::~ReadWrite()
@@ -25,41 +24,30 @@ ReadWrite::~ReadWrite()
 
 void ReadWrite::newFrame(IplImage *image)
 {
-    cl_int error;
-    uchar *data = (uchar *)image->imageData;
-    uchar *temp;
+    _glWidget->newFrame(image);
 
-    _input = clCreateBuffer(_environment->getContext(), CL_MEM_READ_WRITE,
-                            sizeof(cl_uchar)*image->imageSize, data, &error);
-    _temp = clCreateBuffer(_environment->getContext(), CL_MEM_READ_WRITE,
-                            sizeof(cl_uchar)*image->imageSize, NULL, &error);
-    CHECK_ERR(error);
+    CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_input));
 
-    CHECK_ERR(clSetKernelArg(_kernelByteToFloat, 0, sizeof(cl_mem), &_input));
-    CHECK_ERR(clSetKernelArg(_kernelByteToFloat, 1, sizeof(cl_mem), &_temp));
+    CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 1,
+                &_input, 0, NULL, NULL));
 
     const size_t localWorkSize[2] = {64, 64};
     const size_t totalWorkItems[2] = {
-        (image->width / localWorkSize[0] + 1) * localWorkSize[0],
-        (image->height / localWorkSize[1] + 1) * localWorkSize[1]
+        (_mainWidget->width() / localWorkSize[0] + 1) * localWorkSize[0],
+        (_mainWidget->height() / localWorkSize[1] + 1) * localWorkSize[1]
     };
-    CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(), _kernelByteToFloat,
-                                     1, NULL, totalWorkItems, NULL, 0, NULL, NULL));
 
-
-    CHECK_ERR(clEnqueueReadBuffer(_environment->getCommandQueue(), _temp, CL_TRUE,
-                                  0, sizeof(uchar)*image->imageSize, temp, 0, NULL,
-                                  NULL));
-
-    clReleaseMemObject(_input);
-
-    CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 1,
-                &_image, 0, NULL, NULL));
+    /*startTimeMeasure();
+    CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(),
+                _kernel, 2, 0, totalWorkItems, NULL, 0, NULL, NULL));
+    clFinish(_environment->getCommandQueue());
+    stopTimeMeasure();*/
 
     CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 1,
-            &_image, 0, NULL, NULL));
+            &_input, 0, NULL, NULL));
 
-    _glWidget->newFrame(image);
+    //qDebug() << getTimeMeasureResults();
+    _glWidget->updateGL();
 }
 
 void ReadWrite::execute()
@@ -81,17 +69,17 @@ void ReadWrite::initCL()
     _environment->createGLContext();
 
     _environment->createProgram(QStringList("readwrite/kernel.cl"));
-    _kernelByteToFloat = _environment->getKernel("byteToFloat");
+    _kernel = _environment->getKernel("process");
 
-    _image = clCreateFromGLTexture2D(_environment->getContext(),
-                                     CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
-                                     _glWidget->getTexture(), &error);
+    _input = clCreateFromGLTexture2D(_environment->getContext(), CL_MEM_READ_WRITE,
+                                     GL_TEXTURE_2D, 0, _glWidget->getTexture(), &error);
     CHECK_ERR(error);
+
 }
 
 void ReadWrite::releaseCL()
 {
-    clReleaseKernel(_kernelByteToFloat);
+    clReleaseKernel(_kernel);
 
     _environment->createContext();
 }

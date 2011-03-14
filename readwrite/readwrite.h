@@ -56,9 +56,8 @@ private:
     QWidget *_mainWidget;
     QWidget *_configWidget;
 
-    cl_kernel _kernelByteToFloat;
-    cl_mem _image;
-    cl_mem _temp;
+    cl_kernel _kernel;
+    cl_mem _output;
     cl_mem _input;
 
 };
