@@ -1,5 +1,9 @@
-__kernel void process(__write_only image2d_t texture)
+__kernel void calculate(__write_only image2d_t texture)
 {
-    int posX = get_global_id(0);
+    const int posX = get_global_id(0);
+    const int posY = get_global_id(1);
+    int2 dims;
+    
+    dims = get_image_dim(texture);
 }
 
