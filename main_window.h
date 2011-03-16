@@ -7,6 +7,7 @@
 #include "readwrite/readwrite.h"
 #include "galaxy/galaxy.h"
 #include "mandelbrot/mandelbrot.h"
+#include "raytracing/raytracing.h"
 
 #include <QMainWindow>
 #include <QVector>
