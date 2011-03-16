@@ -19,22 +19,12 @@ void GlWidget::initializeGL()
     makeShaders();
     makeGeometry();
 
-    createTexture();
-    glGenTextures(1, &_outputTextureId);
-    glBindTexture(GL_TEXTURE_2D, _outputTextureId);
+    createLeftTexture();
+    createRightTexture();
 
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-            _temp->width, _temp->height, 0, GL_BGR,
-            GL_UNSIGNED_BYTE, NULL);
 }
 
-void GlWidget::createTexture()
+void GlWidget::createLeftTexture()
 {
     glGenTextures(1, &_inputTextureId);
     glBindTexture(GL_TEXTURE_2D, _inputTextureId);
@@ -50,12 +40,24 @@ void GlWidget::createTexture()
             GL_UNSIGNED_BYTE, _temp->imageData);
 }
 
-void GlWidget::paintGL()
+void GlWidget::createRightTexture()
 {
+    glGenTextures(1, &_outputTextureId);
+    glBindTexture(GL_TEXTURE_2D, _outputTextureId);
 
-    qglClearColor(Qt::black);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+            _temp->width, _temp->height, 0, GL_BGR,
+            GL_UNSIGNED_BYTE, NULL);
+}
+
+void GlWidget::updateLeftTexture()
+{
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _inputTextureId);
 
@@ -71,12 +73,14 @@ void GlWidget::paintGL()
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     _shaderProgram->disableAttributeArray("position");
+}
 
-    #if 1
-    glActiveTexture(GL_TEXTURE0);
+void GlWidget::updateRightTexture()
+{
+    glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, _outputTextureId);
 
-    _shaderProgram->setUniformValue("texture", 0);
+    _shaderProgram->setUniformValue("texture", 1);
 
     _shaderProgram->setUniformValue("matrix",
             _matrix);
@@ -88,7 +92,45 @@ void GlWidget::paintGL()
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     _shaderProgram->disableAttributeArray("position");
-    #endif
+}
+
+void GlWidget::paintGL()
+{
+    qglClearColor(Qt::black);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    updateLeftTexture();
+    updateRightTexture();
+}
+
+void GlWidget::newFrame(IplImage *img)
+{
+    static int prevWidth = 0, prevHeight = 0;
+    _temp = img;
+
+    glDeleteTextures(1, &_inputTextureId);
+    createLeftTexture();
+
+    if(prevWidth != _temp->width || prevHeight != _temp->height)
+        resizeGL(width(), height());
+
+    prevWidth = _temp->width;
+    prevHeight = _temp->height;
+
+    glBindTexture(GL_TEXTURE_2D, _inputTextureId);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+            _temp->width, _temp->height, 0, GL_BGR,
+            GL_UNSIGNED_BYTE, _temp->imageData);
+}
+
+void GlWidget::recreateTextures()
+{
+    glDeleteTextures(1, &_inputTextureId);
+    glDeleteTextures(1, &_outputTextureId);
+    createLeftTexture();
+    createRightTexture();
 }
 
 void GlWidget::resizeGL(int width, int height)
@@ -96,6 +138,8 @@ void GlWidget::resizeGL(int width, int height)
 
     double projectionMatrixValues[4];
     double scaleMatrixValues[4];
+
+    recreateTextures();
 
     if(height * _temp->width < width * _temp->height)
     {
@@ -126,28 +170,6 @@ void GlWidget::resizeGL(int width, int height)
               QMatrix2x2(scaleMatrixValues);
 
     glViewport(0, 0, width, height);
-}
-
-void GlWidget::newFrame(IplImage *img)
-{
-    static int prevWidth = 0, prevHeight = 0;
-    _temp = img;
-
-    glDeleteTextures(1, &_inputTextureId);
-    createTexture();
-
-    if(prevWidth != _temp->width || prevHeight != _temp->height)
-        resizeGL(width(), height());
-
-    prevWidth = _temp->width;
-    prevHeight = _temp->height;
-
-    glBindTexture(GL_TEXTURE_2D, _inputTextureId);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-            _temp->width, _temp->height, 0, GL_BGR,
-            GL_UNSIGNED_BYTE, _temp->imageData);
 }
 
 void GlWidget::makeGeometry()

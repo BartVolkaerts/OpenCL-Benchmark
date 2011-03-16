@@ -24,7 +24,11 @@ protected:
     void initializeGL();
     void paintGL();
     void resizeGL(int, int);
-    void createTexture();
+    void createLeftTexture();
+    void createRightTexture();
+    void recreateTextures();
+    void updateLeftTexture();
+    void updateRightTexture();
 
     void makeShaders();
     void makeGeometry();

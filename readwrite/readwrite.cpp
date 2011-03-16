@@ -48,8 +48,8 @@ void ReadWrite::newFrame(IplImage *image)
 
     const size_t localWorkSize[2] = {64, 64};
     const size_t totalWorkItems[2] = {
-        (_mainWidget->width() / localWorkSize[0] + 1) * localWorkSize[0],
-        (_mainWidget->height() / localWorkSize[1] + 1) * localWorkSize[1]
+        (size.x / localWorkSize[0] + 1) * localWorkSize[0],
+        (size.y / localWorkSize[1] + 1) * localWorkSize[1]
     };
 
     startTimeMeasure();
