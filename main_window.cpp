@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
             new Galaxy(_environment, this));
     addBenchmark(Mandelbrot::getName(),
             new Mandelbrot(_environment, this));
+    addBenchmark(Raytracing::getName(),
+            new Raytracing(_environment, this));
 
     ui.benchmarkList->addItems(_benchmarks.keys());
     ui.centralwidget->setLayout(new QVBoxLayout());
