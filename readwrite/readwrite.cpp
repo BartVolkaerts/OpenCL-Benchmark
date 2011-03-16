@@ -26,10 +26,10 @@ void ReadWrite::newFrame(IplImage *image)
 {
     _glWidget->newFrame(image);
 
-    CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_input));
-
     CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 1,
                 &_input, 0, NULL, NULL));
+
+    CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_input));
 
     const size_t localWorkSize[2] = {64, 64};
     const size_t totalWorkItems[2] = {
@@ -37,16 +37,16 @@ void ReadWrite::newFrame(IplImage *image)
         (_mainWidget->height() / localWorkSize[1] + 1) * localWorkSize[1]
     };
 
-    /*startTimeMeasure();
+    startTimeMeasure();
     CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(),
                 _kernel, 2, 0, totalWorkItems, NULL, 0, NULL, NULL));
     clFinish(_environment->getCommandQueue());
-    stopTimeMeasure();*/
+    stopTimeMeasure();
 
     CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 1,
             &_input, 0, NULL, NULL));
 
-    //qDebug() << getTimeMeasureResults();
+    qDebug() << getTimeMeasureResults();
     _glWidget->updateGL();
 }
 
@@ -69,12 +69,12 @@ void ReadWrite::initCL()
     _environment->createGLContext();
 
     _environment->createProgram(QStringList("readwrite/kernel.cl"));
-    _kernel = _environment->getKernel("process");
+
+    _kernel = _environment->getKernel("calculate");
 
     _input = clCreateFromGLTexture2D(_environment->getContext(), CL_MEM_READ_WRITE,
                                      GL_TEXTURE_2D, 0, _glWidget->getTexture(), &error);
     CHECK_ERR(error);
-
 }
 
 void ReadWrite::releaseCL()
