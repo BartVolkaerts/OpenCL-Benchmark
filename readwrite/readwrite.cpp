@@ -24,12 +24,25 @@ ReadWrite::~ReadWrite()
 
 void ReadWrite::newFrame(IplImage *image)
 {
+    cl_int error;
     _glWidget->newFrame(image);
+    glFlush();
 
-    CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 1,
-                &_input, 0, NULL, NULL));
+    _input = clCreateFromGLTexture2D(_environment->getContext(), CL_MEM_READ_WRITE,
+                                     GL_TEXTURE_2D, 0, _glWidget->getLeftTexture(), &error);
+    CHECK_ERR(error);
+
+    _output = clCreateFromGLTexture2D(_environment->getContext(), CL_MEM_READ_WRITE,
+                                     GL_TEXTURE_2D, 0, _glWidget->getRightTexture(), &error);
+    CHECK_ERR(error);
+
+    cl_mem texturesArray[] = {_input, _output};
 
     CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_input));
+    CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_mem), &_output));
+
+    /*CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 2,
+                                        texturesArray, 0, NULL, NULL));*/
 
     const size_t localWorkSize[2] = {64, 64};
     const size_t totalWorkItems[2] = {
@@ -40,13 +53,16 @@ void ReadWrite::newFrame(IplImage *image)
     startTimeMeasure();
     CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(),
                 _kernel, 2, 0, totalWorkItems, NULL, 0, NULL, NULL));
-    clFinish(_environment->getCommandQueue());
+    CHECK_ERR(clFinish(_environment->getCommandQueue()));
     stopTimeMeasure();
 
-    CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 1,
-            &_input, 0, NULL, NULL));
+    /*CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 2,
+            texturesArray, 0, NULL, NULL));*/
 
     qDebug() << getTimeMeasureResults();
+    CHECK_ERR(clReleaseMemObject(_input));
+    CHECK_ERR(clReleaseMemObject(_output));
+
     _glWidget->updateGL();
 }
 
@@ -64,17 +80,11 @@ void ReadWrite::stop()
 
 void ReadWrite::initCL()
 {
-    cl_int error;
-
     _environment->createGLContext();
 
     _environment->createProgram(QStringList("readwrite/kernel.cl"));
 
     _kernel = _environment->getKernel("calculate");
-
-    _input = clCreateFromGLTexture2D(_environment->getContext(), CL_MEM_READ_WRITE,
-                                     GL_TEXTURE_2D, 0, _glWidget->getTexture(), &error);
-    CHECK_ERR(error);
 }
 
 void ReadWrite::releaseCL()

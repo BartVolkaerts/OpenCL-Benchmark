@@ -17,20 +17,24 @@ public:
     GlWidget(QWidget *parent = 0);
     ~GlWidget();
 
-    GLuint getTexture() { return _inputTextureId; }
+    GLuint getLeftTexture() { return _inputTextureId; }
+    GLuint getRightTexture() { return _outputTextureId; }
 
 protected:
     void initializeGL();
     void paintGL();
     void resizeGL(int, int);
+    void createTexture();
 
     void makeShaders();
     void makeGeometry();
 
 private:
     QGLShaderProgram *_shaderProgram;
-    QVector<QVector2D> _vertexArray;
+    QVector<QVector2D> _leftVertexArray;
+    QVector<QVector2D> _rightVertexArray;
     GLuint _inputTextureId;
+    GLuint _outputTextureId;
     IplImage *_temp;
     QMatrix2x2 _matrix;
 
