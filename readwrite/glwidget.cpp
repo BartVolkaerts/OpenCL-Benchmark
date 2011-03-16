@@ -21,7 +21,6 @@ void GlWidget::initializeGL()
 
     createLeftTexture();
     createRightTexture();
-
 }
 
 void GlWidget::createLeftTexture()
@@ -56,6 +55,15 @@ void GlWidget::createRightTexture()
             GL_UNSIGNED_BYTE, NULL);
 }
 
+void GlWidget::paintGL()
+{
+    qglClearColor(Qt::black);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    updateLeftTexture();
+    updateRightTexture();
+}
+
 void GlWidget::updateLeftTexture()
 {
     glActiveTexture(GL_TEXTURE0);
@@ -77,10 +85,10 @@ void GlWidget::updateLeftTexture()
 
 void GlWidget::updateRightTexture()
 {
-    glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _outputTextureId);
 
-    _shaderProgram->setUniformValue("texture", 1);
+    _shaderProgram->setUniformValue("texture", 0);
 
     _shaderProgram->setUniformValue("matrix",
             _matrix);
@@ -92,15 +100,6 @@ void GlWidget::updateRightTexture()
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     _shaderProgram->disableAttributeArray("position");
-}
-
-void GlWidget::paintGL()
-{
-    qglClearColor(Qt::black);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    updateLeftTexture();
-    updateRightTexture();
 }
 
 void GlWidget::newFrame(IplImage *img)

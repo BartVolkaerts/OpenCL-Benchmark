@@ -37,6 +37,10 @@ void ReadWrite::newFrame(IplImage *image)
                                      GL_TEXTURE_2D, 0, _glWidget->getLeftTexture(), &error);
     CHECK_ERR(error);
 
+    _output = clCreateFromGLTexture2D(_environment->getContext(), CL_MEM_READ_WRITE,
+                                     GL_TEXTURE_2D, 0, _glWidget->getRightTexture(), &error);
+    CHECK_ERR(error);
+
     cl_mem texturesArray[] = {_input, _output};
 
     CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_input));
@@ -63,6 +67,7 @@ void ReadWrite::newFrame(IplImage *image)
 
     qDebug() << getTimeMeasureResults();
     CHECK_ERR(clReleaseMemObject(_input));
+    CHECK_ERR(clReleaseMemObject(_output));
 
     _glWidget->updateGL();
 }
@@ -81,23 +86,15 @@ void ReadWrite::stop()
 
 void ReadWrite::initCL()
 {
-    cl_int error;
-
     _environment->createGLContext();
-
     _environment->createProgram(QStringList("readwrite/kernel.cl"));
 
     _kernel = _environment->getKernel("calculate");
-
-    _output = clCreateFromGLTexture2D(_environment->getContext(), CL_MEM_READ_WRITE,
-                                     GL_TEXTURE_2D, 0, _glWidget->getRightTexture(), &error);
-    CHECK_ERR(error);
 }
 
 void ReadWrite::releaseCL()
 {
     clReleaseKernel(_kernel);
-
     _environment->createContext();
 }
 
