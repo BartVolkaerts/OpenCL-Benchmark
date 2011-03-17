@@ -31,6 +31,7 @@ HEADERS +=\
     mandelbrot/mandelbrot_main_widget.h\
     mandelbrot/mandelbrot_config_widget.h\
     raytracing/raytracing.h\
+    raytracing/raytracing_main_widget.h\
 
 SOURCES +=\
     main.cpp\
@@ -51,6 +52,7 @@ SOURCES +=\
     mandelbrot/mandelbrot_main_widget.cpp\
     mandelbrot/mandelbrot_config_widget.cpp\
     raytracing/raytracing.cpp\
+    raytracing/raytracing_main_widget.cpp\
 
 FORMS += main_window.ui\
     flops/flops_main_widget.ui\
