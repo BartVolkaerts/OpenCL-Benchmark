@@ -51,7 +51,8 @@ void Raytracing::execute()
     hostObject[2].x = 50; hostObject[2].y = -100; hostObject[2].z = -100; hostObject[2].w = 0.f;
 
     cl_int error;
-    cl_mem devObject = clCreateBuffer(_environment->getContext(), CL_MEM_READ_ONLY,
+    cl_mem devObject = clCreateBuffer(_environment->getContext(),
+            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
             sizeof(cl_float4) * 3, hostObject, &error);
     CHECK_ERR(error);
 
