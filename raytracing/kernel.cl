@@ -1,4 +1,4 @@
-#define CAMERA_PLANE_DISTANCE 40.f
+#define CAMERA_PLANE_DISTANCE 100.f
 int rayIntersectsTriangle(float4 rayOrigin, float4 rayDirection,
         float4 triangle[]);
 
@@ -21,15 +21,10 @@ __kernel void render(
     float4 origin = (float4)(0.f, 0.f, 0.f, 0.f);
     float4 triangle[3] = { object[0], object[1], object[2] };
 
-    int out;
-    if ((out = rayIntersectsTriangle(origin, cameraRayDir, triangle)) == 1)
-        write_imagef(texture, pos, (float4)(0.f, 0.f, 0.f, 1.f));
-    else if (out == -1)
-        write_imagef(texture, pos, (float4)(1.f, 1.f, 0.f, 1.f));
-    else if (out == -2)
-        write_imagef(texture, pos, (float4)(0.f, 1.f, 0.f, 1.f));
+    if (rayIntersectsTriangle(origin, cameraRayDir, triangle) == 1)
+        write_imagef(texture, pos, (float4)(0.f, 1.f, 1.f, 1.f));
     else
-        write_imagef(texture, pos, (float4)(0.f, 0.f, 1.f, 1.f));
+        write_imagef(texture, pos, (float4)(0.f, 0.f, 0.f, 1.f));
 
 }
 
@@ -37,11 +32,12 @@ __kernel void render(
 int rayIntersectsTriangle(float4 rayOrigin, float4 rayDirection,
         float4 triangle[])
 {
-#if 1
     const float EPSILON = 0.000001f;
-    rayDirection = (float4)(0.f, 0.f, 1.f, 0.f);
 
-    // Vector for edges sharing triangle[0]
+    triangle[0].x = 100; triangle[0].y = 100; triangle[0].z = -100; triangle[0].w = 0.f;
+    triangle[1].x = -100; triangle[1].y = 100; triangle[1].z = -100; triangle[1].w = 0.f;
+    triangle[2].x = 50; triangle[2].y = -100; triangle[2].z = -100; triangle[2].w = 0.f;
+
     float4 edge1 = triangle[1] - triangle[0];
     float4 edge2 = triangle[2] - triangle[0];
 
@@ -52,46 +48,20 @@ int rayIntersectsTriangle(float4 rayOrigin, float4 rayDirection,
         return -1;
 
     float inv_det = 1.f / det;
-
     float4 tvec = rayOrigin - triangle[0];
 
+
     float u = dot(tvec, pvec) * inv_det;
+
     if (u < 0.f || u > 1.f)
         return -2;
 
     float4 qvec = cross(tvec, edge1);
-    float v = dot(rayDirection, qvec);
-
-    if (v < 0.f || u + v > 1.f)
-        return -3;
-
-    float t = dot(edge2, qvec) * inv_det;
-
-    return 1;
-#else
-    float4 edge1 = triangle[1] - triangle[0];
-    float4 edge2 = triangle[2] - triangle[0];
-
-    float4 tvec = rayOrigin - triangle[0];
-    float4 pvec = cross(rayDirection, edge2);
-    float det = dot(edge1, pvec);
-    det = 1.f / det;
-
-    float u = dot(tvec, pvec) * det;
-
-    if (u < 0.f || u > 1.f)
-        return 0;
-
-    float4 qvec = cross(tvec, edge1);
-    float v = dot(rayDirection, qvec) * det;
+    float v = dot(rayDirection, qvec) * inv_det;
 
     if (v < 0.f || (u + v) > 1.f)
         return 0;
 
     return 1;
-
-#endif
-
-
 
 }

@@ -46,9 +46,9 @@ void Raytracing::execute()
     initCL();
 
     cl_float4 hostObject[3];
-    hostObject[0].x = 100; hostObject[0].y = 100; hostObject[0].z = -10; hostObject[0].w = 0.f;
-    hostObject[1].x = -100; hostObject[1].y = 100; hostObject[1].z = -10; hostObject[1].w = 0.f;
-    hostObject[2].x = 50; hostObject[2].y = -100; hostObject[2].z = -10; hostObject[2].w = 0.f;
+    hostObject[0].x = 100; hostObject[0].y = 100; hostObject[0].z = -100; hostObject[0].w = 0.f;
+    hostObject[1].x = -100; hostObject[1].y = 100; hostObject[1].z = -100; hostObject[1].w = 0.f;
+    hostObject[2].x = 50; hostObject[2].y = -100; hostObject[2].z = -100; hostObject[2].w = 0.f;
 
     cl_int error;
     cl_mem devObject = clCreateBuffer(_environment->getContext(), CL_MEM_READ_ONLY,
