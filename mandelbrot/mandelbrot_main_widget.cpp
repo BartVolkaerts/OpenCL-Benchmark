@@ -237,7 +237,7 @@ void MandelbrotMainWidget::mouseReleaseEvent(QMouseEvent *event)
     emit positionChanged(
         (double)(_lastRenderPos.x() - event->pos().x()) / (double)(width()),
         (double)(_lastRenderPos.y() - event->pos().y()) /
-            (double)(height() * 2));
+            (double)(height()));
     resetTranslation();
     setCursor(Qt::OpenHandCursor);
     updateGL();

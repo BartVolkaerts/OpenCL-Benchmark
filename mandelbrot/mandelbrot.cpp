@@ -216,7 +216,7 @@ void Mandelbrot::translate(double dX, double dY)
 {
     double xScale = _maxReal - _minReal;
     double yScale = xScale *
-        ((double)_mainWidget->width() / (double)_mainWidget->height());
+        ((double)_mainWidget->height() / (double)_mainWidget->width());
 
     _minReal += xScale * dX;
     _maxReal += xScale * dX;
