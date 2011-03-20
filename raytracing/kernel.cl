@@ -1,11 +1,13 @@
 #define CAMERA_PLANE_DISTANCE 100.f
 int rayIntersectsTriangle(float4 rayOrigin, float4 rayDirection,
-        __global float4 triangle[]);
+        __global float4 triangle[], float4 *intersectionPoint);
+float4 getTriangleNormal(__global float4 triangle[]);
 
 __kernel void render(
         __write_only image2d_t texture,
         const int2 textureSize,
-        __global float4 *object)
+        __global float4 *object,
+        float4 audioSourcePos)
 {
     int2 pos;
     pos.x = get_global_id(0);
@@ -14,23 +16,39 @@ __kernel void render(
     if (pos.x >= textureSize.x || pos.y >= textureSize.y)
         return;
 
+    audioSourcePos = (float4)(-50.f, -150.f, 800.f, 0.f);
     float4 cameraRayDir = (float4)(pos.x - (textureSize.x / 2.f),
-            pos.y - (textureSize.y / 2.f), - CAMERA_PLANE_DISTANCE, 0.f);
+            pos.y - (textureSize.y / 2.f), + CAMERA_PLANE_DISTANCE, 0.f);
     cameraRayDir = normalize(cameraRayDir);
 
     float4 origin = (float4)(0.f, 0.f, 0.f, 0.f);
 
-    if (rayIntersectsTriangle(origin, cameraRayDir, object) == 1)
-        write_imagef(texture, pos, (float4)(0.f, 1.f, 1.f, 1.f));
+    float4 intersectionPoint;
+    if (rayIntersectsTriangle(origin, cameraRayDir, object, &intersectionPoint) == 1)
+    {
+    #if 1
+        float4 audioDir = audioSourcePos - intersectionPoint;
+
+        normalize(audioDir);
+        float4 normal = getTriangleNormal(object);
+        float dotProduct = dot(normal, audioDir);
+
+        float4 diff = dotProduct * (float4)(1.f, 0.f, 1.f, 1.f);
+
+#endif
+        write_imagef(texture, pos, diff);
+    }
     else
+    {
         write_imagef(texture, pos, (float4)(0.f, 0.f, 0.f, 1.f));
+    }
 
 }
 
 // Based on: http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/
 //      Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
 int rayIntersectsTriangle(float4 rayOrigin, float4 rayDirection,
-        __global float4 triangle[])
+        __global float4 triangle[], float4 *intersectionPoint)
 {
     const float EPSILON = 0.000001f;
 
@@ -59,6 +77,18 @@ int rayIntersectsTriangle(float4 rayOrigin, float4 rayDirection,
     if (v < 0.f || (u + v) > 1.f)
         return 0;
 
+    *intersectionPoint = dot(edge2, qvec) * inv_det;
+    *intersectionPoint = length(*intersectionPoint) * rayDirection;
+    //if (*intersectionPoint < 0.f)
+        //return 0;
+
     return 1;
 
+}
+
+float4 getTriangleNormal(__global float4 triangle[])
+{
+    float4 result = cross(triangle[1] - triangle[0],
+            triangle[2] - triangle[1]);
+    return normalize(result);
 }

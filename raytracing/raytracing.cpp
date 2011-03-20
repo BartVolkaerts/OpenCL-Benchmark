@@ -46,7 +46,7 @@ void Raytracing::execute()
     initCL();
 
     cl_float4 hostObject[3];
-    hostObject[0].x = 100; hostObject[0].y = 100; hostObject[0].z = -100; hostObject[0].w = 0.f;
+    hostObject[0].x = 100; hostObject[0].y = 100; hostObject[0].z = -200; hostObject[0].w = 0.f;
     hostObject[1].x = -100; hostObject[1].y = 100; hostObject[1].z = -100; hostObject[1].w = 0.f;
     hostObject[2].x = 50; hostObject[2].y = -100; hostObject[2].z = -100; hostObject[2].w = 0.f;
 
@@ -64,9 +64,12 @@ void Raytracing::execute()
 
     qDebug() << totalWorkItems[0] << totalWorkItems[1];
 
+    cl_float4 audioSource;
+
     CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_texture));
     CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_int2), &_textureSize));
     CHECK_ERR(clSetKernelArg(_kernel, 2, sizeof(cl_mem), &devObject));
+    CHECK_ERR(clSetKernelArg(_kernel, 3, sizeof(cl_float4), &audioSource));
 
     CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 1,
                 &_texture, 0, NULL, NULL));
