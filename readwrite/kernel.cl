@@ -13,8 +13,19 @@ __kernel void calculate(__read_only image2d_t input,
 
     pos = (int2)(posX, posY);
     //test = (float4)(1.f ,1.f, 1.f, 1.f);
-    test = read_imagef(input, samplerA, pos);
-    test.x = 0.f;
+    test = read_imagef(input, samplerA,pos);
+    if(test.x > 0.5f && test.y > 0.5f && test.z > 0.5f) 
+    {
+        test.x = 1.0f;
+        test.y = 1.0f;
+        test.z = 1.0f;
+    }
+    else
+    {
+        test.x = 0.f;
+        test.y = 0.f;
+        test.z = 0.f;
+    }
     write_imagef(output,pos,test);
 }
 

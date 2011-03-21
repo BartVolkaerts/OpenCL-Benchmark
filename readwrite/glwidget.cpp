@@ -74,6 +74,9 @@ void GlWidget::updateLeftTexture()
     _shaderProgram->setUniformValue("matrix",
             _matrix);
 
+    _shaderProgram->setUniformValue("imagePosition",
+            1.0f);
+
     _shaderProgram->setAttributeArray("position", _leftVertexArray.constData());
     _shaderProgram->enableAttributeArray("position");
 
@@ -92,6 +95,9 @@ void GlWidget::updateRightTexture()
 
     _shaderProgram->setUniformValue("matrix",
             _matrix);
+
+    _shaderProgram->setUniformValue("imagePosition",
+            0.0f);
 
     _shaderProgram->setAttributeArray("position", _rightVertexArray.constData());
     _shaderProgram->enableAttributeArray("position");
@@ -140,9 +146,9 @@ void GlWidget::resizeGL(int width, int height)
 
     recreateTextures();
 
-    if(height * _temp->width < width * _temp->height)
+    if(height * _temp->width * 2 < width * _temp->height)
     {
-        projectionMatrixValues[0] = (double) height / (double)width;
+        projectionMatrixValues[0] = (double)height / (double)width * 2;
         projectionMatrixValues[1] = 0.0;
         projectionMatrixValues[2] = 0.0;
         projectionMatrixValues[3] = 1.0;
@@ -150,14 +156,14 @@ void GlWidget::resizeGL(int width, int height)
         scaleMatrixValues[0] = (double)_temp->width / (double)_temp->height;
         scaleMatrixValues[1] = 0.0;
         scaleMatrixValues[2] = 0.0;
-        scaleMatrixValues[3] = 1.0;
+        scaleMatrixValues[3] = 2.0;
     }
     else
     {
         projectionMatrixValues[0] = 1.0;
         projectionMatrixValues[1] = 0.0;
         projectionMatrixValues[2] = 0.0;
-        projectionMatrixValues[3] = (double) width / (double)height;
+        projectionMatrixValues[3] = (double)width / (double)height;
 
         scaleMatrixValues[0] = 1.0;
         scaleMatrixValues[1] = 0.0;
@@ -168,20 +174,21 @@ void GlWidget::resizeGL(int width, int height)
     _matrix = QMatrix2x2(projectionMatrixValues) *
               QMatrix2x2(scaleMatrixValues);
 
+
     glViewport(0, 0, width, height);
 }
 
 void GlWidget::makeGeometry()
 {
-    _leftVertexArray.append(QVector2D(-1.0f, -1.0f));
-    _leftVertexArray.append(QVector2D(0.0f, -1.0f));
-    _leftVertexArray.append(QVector2D(-1.0f, 1.0f));
-    _leftVertexArray.append(QVector2D(0.0f, 1.0f));
+    _leftVertexArray.append(QVector2D(-1.0f, -0.5f));
+    _leftVertexArray.append(QVector2D(0.0f, -0.5f));
+    _leftVertexArray.append(QVector2D(-1.0f, 0.5f));
+    _leftVertexArray.append(QVector2D(0.0f, 0.5f));
 
-    _rightVertexArray.append(QVector2D(0.0f, -1.0f));
-    _rightVertexArray.append(QVector2D(1.0f, -1.0f));
-    _rightVertexArray.append(QVector2D(0.0f, 1.0f));
-    _rightVertexArray.append(QVector2D(1.0f, 1.0f));
+    _rightVertexArray.append(QVector2D(0.0f, -0.5f));
+    _rightVertexArray.append(QVector2D(1.0f, -0.5f));
+    _rightVertexArray.append(QVector2D(0.0f, 0.5f));
+    _rightVertexArray.append(QVector2D(1.0f, 0.5f));
 }
 
 void GlWidget::makeShaders()
@@ -195,6 +202,7 @@ void GlWidget::makeShaders()
 
     vertexShaderSource.append("#version 110\n");
     vertexShaderSource.append("attribute vec2 position;\n");
+    vertexShaderSource.append("uniform float imagePosition;\n");
     vertexShaderSource.append("uniform mat2 matrix;\n");
     vertexShaderSource.append("varying vec2 texcoord;\n");
     vertexShaderSource.append("void main()\n");
@@ -202,7 +210,7 @@ void GlWidget::makeShaders()
     vertexShaderSource.append(
             "gl_Position = vec4(matrix * position, 0.0, 1.0);\n");
     vertexShaderSource.append("texcoord = vec2(position.x, -position.y) "
-            "* vec2(0.5) + vec2(0.5);\n");
+            "* vec2(1.0, 1.0) + vec2(imagePosition, 0.5);\n");
     vertexShaderSource.append("}\n");
 
     fragmentShaderSource.append("#version 110\n");
