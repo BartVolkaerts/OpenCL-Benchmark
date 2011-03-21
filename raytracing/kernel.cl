@@ -16,7 +16,7 @@ __kernel void render(
     if (pos.x >= textureSize.x || pos.y >= textureSize.y)
         return;
 
-    audioSourcePos = (float4)(-50.f, -150.f, 800.f, 0.f);
+    audioSourcePos = (float4)(0.f, -0.f, 400.f, 0.f);
     float4 cameraRayDir = (float4)(pos.x - (textureSize.x / 2.f),
             pos.y - (textureSize.y / 2.f), + CAMERA_PLANE_DISTANCE, 0.f);
     cameraRayDir = normalize(cameraRayDir);
@@ -24,17 +24,18 @@ __kernel void render(
     float4 origin = (float4)(0.f, 0.f, 0.f, 0.f);
 
     float4 intersectionPoint;
-    if (rayIntersectsTriangle(origin, cameraRayDir, object, &intersectionPoint) == 1)
+    if (rayIntersectsTriangle(origin, cameraRayDir, object,
+        &intersectionPoint) == 1)
     {
     #if 1
         float4 audioDir = audioSourcePos - intersectionPoint;
 
-        normalize(audioDir);
+        audioDir = normalize(audioDir);
         float4 normal = getTriangleNormal(object);
         float dotProduct = dot(normal, audioDir);
 
+        //float4 diff = normalize(audioDir) * (float4)(1.f, 0.f, 1.f, 1.f);
         float4 diff = dotProduct * (float4)(1.f, 0.f, 1.f, 1.f);
-
 #endif
         write_imagef(texture, pos, diff);
     }
@@ -83,7 +84,6 @@ int rayIntersectsTriangle(float4 rayOrigin, float4 rayDirection,
         //return 0;
 
     return 1;
-
 }
 
 float4 getTriangleNormal(__global float4 triangle[])
