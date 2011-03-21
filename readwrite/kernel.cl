@@ -5,27 +5,29 @@ __kernel void calculate(__read_only image2d_t input,
     const int posX = get_global_id(0);
     const int posY = get_global_id(1);
     int2 pos;
-    float4 test; 
+    float4 pixel; 
     const sampler_t samplerA = CLK_NORMALIZED_COORDS_FALSE;
 
     if(posX > size.x-1 || posY > size.y-1)
         return;
 
     pos = (int2)(posX, posY);
-    //test = (float4)(1.f ,1.f, 1.f, 1.f);
-    test = read_imagef(input, samplerA,pos);
-    if(test.x > 0.5f && test.y > 0.5f && test.z > 0.5f) 
+    //pixel = (float4)(1.f ,1.f, 1.f, 1.f);
+    pixel = read_imagef(input, samplerA,pos);
+    if(pixel.x > 0.675f && pixel.x < 0.835f &&
+        pixel.y > 0.526f && pixel.y < 0.706f &&
+        pixel.z > 0.566f && pixel.z < 0.766f) 
     {
-        test.x = 1.0f;
-        test.y = 1.0f;
-        test.z = 1.0f;
+        pixel.x = 1.0f;
+        pixel.y = 1.0f;
+        pixel.z = 1.0f;
     }
     else
     {
-        test.x = 0.f;
-        test.y = 0.f;
-        test.z = 0.f;
+        pixel.x = 0.f;
+        pixel.y = 0.f;
+        pixel.z = 0.f;
     }
-    write_imagef(output,pos,test);
+    write_imagef(output,pos,pixel);
 }
 
