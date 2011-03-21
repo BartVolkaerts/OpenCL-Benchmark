@@ -27,7 +27,6 @@ __kernel void render(
     if (rayIntersectsTriangle(origin, cameraRayDir, object,
         &intersectionPoint) == 1)
     {
-    #if 1
         float4 audioDir = audioSourcePos - intersectionPoint;
 
         audioDir = normalize(audioDir);
@@ -36,14 +35,12 @@ __kernel void render(
 
         //float4 diff = normalize(audioDir) * (float4)(1.f, 0.f, 1.f, 1.f);
         float4 diff = dotProduct * (float4)(1.f, 0.f, 1.f, 1.f);
-#endif
         write_imagef(texture, pos, diff);
     }
     else
     {
         write_imagef(texture, pos, (float4)(0.f, 0.f, 0.f, 1.f));
     }
-
 }
 
 // Based on: http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/
