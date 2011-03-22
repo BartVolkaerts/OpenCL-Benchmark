@@ -7,7 +7,8 @@ __kernel void render(
         __write_only image2d_t texture,
         const int2 textureSize,
         __global float4 *object,
-        float4 audioSourcePos)
+        float4 audioSourcePos,
+        int numberOfVertices)
 {
     int2 pos;
     pos.x = get_global_id(0);
@@ -24,22 +25,22 @@ __kernel void render(
     float4 origin = (float4)(0.f, 0.f, 0.f, 0.f);
 
     float4 intersectionPoint;
-    if (rayIntersectsTriangle(origin, cameraRayDir, object,
-        &intersectionPoint) == 1)
+    write_imagef(texture, pos, (float4)(0.f, 0.f, 0.f, 1.f));
+    for (int i = 0; i <= numberOfVertices - 3; ++i)
     {
-        float4 audioDir = audioSourcePos - intersectionPoint;
+        if (rayIntersectsTriangle(origin, cameraRayDir, &object[i],
+            &intersectionPoint) == 1)
+        {
+            float4 audioDir = audioSourcePos - intersectionPoint;
 
-        audioDir = normalize(audioDir);
-        float4 normal = getTriangleNormal(object);
-        float dotProduct = dot(normal, audioDir);
+            audioDir = normalize(audioDir);
+            float4 normal = getTriangleNormal(object);
+            float dotProduct = dot(normal, audioDir);
 
-        //float4 diff = normalize(audioDir) * (float4)(1.f, 0.f, 1.f, 1.f);
-        float4 diff = dotProduct * (float4)(1.f, 0.f, 1.f, 1.f);
-        write_imagef(texture, pos, diff);
-    }
-    else
-    {
-        write_imagef(texture, pos, (float4)(0.f, 0.f, 0.f, 1.f));
+            //float4 diff = normalize(audioDir) * (float4)(1.f, 0.f, 1.f, 1.f);
+            float4 diff = dotProduct * (float4)(1.f, 0.f, 1.f, 1.f);
+            write_imagef(texture, pos, diff);
+        }
     }
 }
 

@@ -23,6 +23,7 @@ FlopsBenchmark::~FlopsBenchmark()
 
 void FlopsBenchmark::initCL()
 {
+    _environment->createContext();
     _environment->createProgram(QStringList("flops/kernel.cl"));
     _kernel = _environment->getKernel("add");
     _vector4Kernel = _environment->getKernel("addVector4");
