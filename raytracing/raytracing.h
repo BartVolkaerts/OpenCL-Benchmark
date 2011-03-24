@@ -4,6 +4,10 @@
 #include "raytracing_main_widget.h"
 #include "../base_benchmark.h"
 
+#include <assimp.hpp>
+#include <aiScene.h>
+#include <aiPostProcess.h>
+
 #ifdef __APPLE__
 #   include <OpenCL/cl_gl_ext.h>
 #   include <OpenCL/cl_gl.h>
@@ -41,15 +45,39 @@ class Raytracing
     private:
         void initCL();
         void releaseCL();
+        void allocateBuffers();
+        void releaseBuffers();
+        void renderImage();
 
     private:
         QWidget *_configWidget;
         RaytracingMainWidget *_mainWidget;
         bool _isRunning;
+        void createGeometry();
 
-        cl_int2 _textureSize;
-        cl_mem _texture;
-        cl_kernel _kernel;
+        int _numberOfVertices;
+
+        // OpenCL buffers:
+        cl_mem _raysFromCamera;
+        cl_mem _glTexture;
+        cl_mem _intersectionPoints;
+        cl_mem _intersectionPointNormals;
+        cl_mem _surfaceIds;
+
+        cl_mem _triangleMesh;
+
+        // OpenCL parameters
+        cl_int2 _imageSize;
+        cl_float _cameraPlaneDistance;
+        cl_float4 _cameraOrigin;
+        cl_float4 _emisionSource;
+
+        cl_float4 *_geometry;
+
+        // Kernels:
+        cl_kernel _createRaysKernel;
+        cl_kernel _triangleIntersectionKernel;
+        cl_kernel _renderImageKernel;
 };
 
 #endif // RAYTRACING_H

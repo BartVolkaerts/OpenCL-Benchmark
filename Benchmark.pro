@@ -4,8 +4,8 @@ QT += opengl
 
 #DEFINES += GL_SHARING_EXTENSION="cl_khr_gl_sharing"
 
-unix:LIBS += -lOpenCL -levent -lqwt -lm -lopencv_core -lopencv_highgui
-unix:INCLUDEPATH += /usr/include/qwt
+unix:LIBS += -lOpenCL -levent -lqwt -lm -lopencv_core -lopencv_highgui -lassimp
+unix:INCLUDEPATH += /usr/include/qwt /usr/include/assimp
 unix:DEFINES += GL_GLEXT_PROTOTYPES
 
 OBJECTS_DIR = ./build

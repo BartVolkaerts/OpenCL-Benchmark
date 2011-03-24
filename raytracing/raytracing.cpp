@@ -1,5 +1,4 @@
 #include <QLabel>
-
 #include "raytracing.h"
 
 Raytracing::Raytracing(Environment *environment, QWidget *parent)
@@ -7,6 +6,22 @@ Raytracing::Raytracing(Environment *environment, QWidget *parent)
 {
     _configWidget = new QLabel("Config Widget", parent);
     _mainWidget = new RaytracingMainWidget(parent);
+    _geometry = NULL;
+
+    _imageSize.x = 800;
+    _imageSize.y = 600;
+
+    _cameraPlaneDistance = 200.f;
+
+    _cameraOrigin.x = 0.f;
+    _cameraOrigin.y = 0.f;
+    _cameraOrigin.z = 0.f;
+    _cameraOrigin.w = 0.f;
+
+    _emisionSource.x = 0.f;
+    _emisionSource.y = 0.f;
+    _emisionSource.z = 400.f;
+    _emisionSource.w = 0.f;
 
     _isRunning = false;
 
@@ -17,27 +32,8 @@ Raytracing::Raytracing(Environment *environment, QWidget *parent)
 
 Raytracing::~Raytracing()
 {
+    delete _geometry;
 
-}
-
-void Raytracing::initCL()
-{
-    cl_int error;
-    _environment->createGLContext();
-    _environment->createProgram(QStringList("raytracing/kernel.cl"));
-    _kernel = _environment->getKernel("render");
-
-
-    _texture = clCreateFromGLTexture2D(_environment->getContext(),
-            CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
-            _mainWidget->getTextureId(), &error);
-    CHECK_ERR(error);
-}
-
-void Raytracing::releaseCL()
-{
-    clReleaseKernel(_kernel);
-    clReleaseMemObject(_texture);
 }
 
 void Raytracing::execute()
@@ -45,45 +41,196 @@ void Raytracing::execute()
     _isRunning = true;
     initCL();
 
-    cl_float4 hostObject[4];
-    hostObject[0].x = 400; hostObject[0].y = 100; hostObject[0].z = -200; hostObject[0].w = 0.f;
-    hostObject[1].x = -100; hostObject[1].y = 100; hostObject[1].z = -100; hostObject[1].w = 0.f;
-    hostObject[2].x = -150; hostObject[2].y = -100; hostObject[2].z = -100; hostObject[2].w = 0.f;
-    hostObject[3].x = -200; hostObject[3].y = 50; hostObject[3].z = -50; hostObject[3].w = 0.f;
+    renderImage();
+}
 
-    cl_int error;
-    cl_mem devObject = clCreateBuffer(_environment->getContext(),
-            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-            sizeof(cl_float4) * 4, hostObject, &error);
-    CHECK_ERR(error);
+void Raytracing::releaseCL()
+{
+    CHECK_ERR(clReleaseKernel(_createRaysKernel));
+    CHECK_ERR(clReleaseKernel(_renderImageKernel));
+    CHECK_ERR(clReleaseKernel(_triangleIntersectionKernel));
 
+    releaseBuffers();
+}
+
+void Raytracing::renderImage()
+{
+    // Calculate worksizes:
     const size_t localWorkSize[2] = {64, 64};
     const size_t totalWorkItems[2] = {
-        (_textureSize.x / localWorkSize[0] + 1) * localWorkSize[0],
-        (_textureSize.y / localWorkSize[1] + 1) * localWorkSize[1]
+        (_imageSize.x / localWorkSize[0] + 1) * localWorkSize[0],
+        (_imageSize.y / localWorkSize[1] + 1) * localWorkSize[1]
     };
 
-    qDebug() << totalWorkItems[0] << totalWorkItems[1];
+    // Create Camera Rays:
+    CHECK_ERR(clSetKernelArg(_createRaysKernel, 0,
+            sizeof(cl_mem), &_raysFromCamera));
+    CHECK_ERR(clSetKernelArg(_createRaysKernel, 1,
+            sizeof(cl_int2), &_imageSize));
+    CHECK_ERR(clSetKernelArg(_createRaysKernel, 2,
+            sizeof(cl_float), &_cameraPlaneDistance));
 
-    cl_float4 audioSource;
-    int numberOfVertices = 4;
+    CHECK_ERR(clEnqueueNDRangeKernel(
+            _environment->getCommandQueue(),
+            _createRaysKernel,
+            2,
+            0, totalWorkItems, NULL,
+            0, NULL, NULL));
 
-    CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_texture));
-    CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_int2), &_textureSize));
-    CHECK_ERR(clSetKernelArg(_kernel, 2, sizeof(cl_mem), &devObject));
-    CHECK_ERR(clSetKernelArg(_kernel, 3, sizeof(cl_float4), &audioSource));
-    CHECK_ERR(clSetKernelArg(_kernel, 4, sizeof(cl_int), &numberOfVertices));
+    // Intersect with triangle mesh:
+    CHECK_ERR(clSetKernelArg(_triangleIntersectionKernel, 0,
+            sizeof(cl_mem), &_raysFromCamera));
+    CHECK_ERR(clSetKernelArg(_triangleIntersectionKernel, 1,
+            sizeof(cl_float4), &_cameraOrigin));
+    CHECK_ERR(clSetKernelArg(_triangleIntersectionKernel, 2,
+            sizeof(cl_int2), &_imageSize));
+    CHECK_ERR(clSetKernelArg(_triangleIntersectionKernel, 3,
+            sizeof(cl_mem), &_triangleMesh));
+    // Offset (argument 4) added later.
+    CHECK_ERR(clSetKernelArg(_triangleIntersectionKernel, 5,
+            sizeof(cl_mem), &_intersectionPoints));
+    CHECK_ERR(clSetKernelArg(_triangleIntersectionKernel, 6,
+            sizeof(cl_mem), &_intersectionPointNormals));
+    cl_int surfaceId = 0;
+    CHECK_ERR(clSetKernelArg(_triangleIntersectionKernel, 7,
+            sizeof(cl_int), &surfaceId));
+    CHECK_ERR(clSetKernelArg(_triangleIntersectionKernel, 8,
+            sizeof(cl_mem), &_surfaceIds));
 
-    CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 1,
-                &_texture, 0, NULL, NULL));
+    for (cl_int i = 0; i < _numberOfVertices - 2; ++i)
+    {
+        CHECK_ERR(clSetKernelArg(_triangleIntersectionKernel, 4,
+                sizeof(cl_int), &i));
+        CHECK_ERR(clEnqueueNDRangeKernel(
+                _environment->getCommandQueue(),
+                _createRaysKernel,
+                2,
+                0, totalWorkItems, NULL,
+                0, NULL, NULL));
+    }
 
-    CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(),
-                _kernel, 2, 0, totalWorkItems, NULL, 0, NULL, NULL));
-    CHECK_ERR(clFinish(_environment->getCommandQueue()));
+    // Render image to the screen:
+    CHECK_ERR(clSetKernelArg(_renderImageKernel, 0,
+            sizeof(cl_mem), &_glTexture));
+    CHECK_ERR(clSetKernelArg(_renderImageKernel, 1,
+            sizeof(cl_int2), &_imageSize));
+    CHECK_ERR(clSetKernelArg(_renderImageKernel, 2,
+            sizeof(cl_mem), &_intersectionPoints));
+    CHECK_ERR(clSetKernelArg(_renderImageKernel, 3,
+            sizeof(cl_mem), &_intersectionPointNormals));
+    CHECK_ERR(clSetKernelArg(_renderImageKernel, 4,
+            sizeof(cl_float4), &_emisionSource));
+    CHECK_ERR(clSetKernelArg(_renderImageKernel, 5,
+            sizeof(cl_mem), &_surfaceIds));
+    CHECK_ERR(clEnqueueNDRangeKernel(
+            _environment->getCommandQueue(),
+            _renderImageKernel,
+            2,
+            0, totalWorkItems, NULL,
+            0, NULL, NULL));
 
-    CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 1,
-                &_texture, 0, NULL, NULL));
+    _mainWidget->updateGL();
 }
+
+
+void Raytracing::initCL()
+{
+    _environment->createGLContext();
+    QStringList kernelCode;
+    kernelCode.append("raytracing/create_rays.cl");
+    kernelCode.append("raytracing/ray_intersection.cl");
+    kernelCode.append("raytracing/render_image.cl");
+
+    _environment->createProgram(kernelCode);
+
+    _createRaysKernel = _environment->getKernel("createRays");
+    _triangleIntersectionKernel =
+        _environment->getKernel("triangleIntersection");
+    _renderImageKernel = _environment->getKernel("renderImage");
+
+    allocateBuffers();
+}
+
+void Raytracing::allocateBuffers()
+{
+    cl_int error;
+
+    // Rays from camera:
+    _raysFromCamera = clCreateBuffer(
+            _environment->getContext(),
+            CL_MEM_READ_WRITE,
+            sizeof(cl_float4) * _imageSize.x * _imageSize.y,
+            NULL,
+            &error);
+    CHECK_ERR(error);
+
+    // Visible image:
+    _glTexture = clCreateFromGLTexture2D(
+            _environment->getContext(),
+            CL_MEM_READ_WRITE,
+            GL_TEXTURE_2D,
+            0,
+            _mainWidget->getTextureId(),
+            &error);
+    CHECK_ERR(error);
+
+    // Closest intersection points for every ray:
+    cl_float4 *hostIntersectionPoints =
+        new cl_float4[_imageSize.x * _imageSize.y];
+    for (int i = 0; i < _imageSize.x * _imageSize.y; ++i)
+    {
+        hostIntersectionPoints[i].w = -1.f;
+    }
+    _intersectionPoints = clCreateBuffer(
+            _environment->getContext(),
+            CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+            sizeof(cl_float4) * _imageSize.x * _imageSize.y,
+            hostIntersectionPoints,
+            &error);
+    CHECK_ERR(error);
+    delete[] hostIntersectionPoints;
+
+    // Normals for closest intersection point for every ray:
+    _intersectionPointNormals = clCreateBuffer(
+            _environment->getContext(),
+            CL_MEM_READ_WRITE,
+            sizeof(cl_float4) * _imageSize.x * _imageSize.y,
+            NULL,
+            &error);
+    CHECK_ERR(error);
+
+    // Surface ids for closest intersection point for every ray:
+    _surfaceIds = clCreateBuffer(
+            _environment->getContext(),
+            CL_MEM_READ_WRITE,
+            sizeof(cl_int) * _imageSize.x * _imageSize.y,
+            NULL,
+            &error);
+    CHECK_ERR(error);
+
+    // Triangle Mesh:
+    createGeometry();
+    _triangleMesh = clCreateBuffer(
+            _environment->getContext(),
+            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+            sizeof(cl_float4) * _numberOfVertices,
+            _geometry,
+            &error);
+    CHECK_ERR(error);
+
+
+}
+
+void Raytracing::releaseBuffers()
+{
+    CHECK_ERR(clReleaseMemObject(_raysFromCamera));
+    CHECK_ERR(clReleaseMemObject(_glTexture));
+    CHECK_ERR(clReleaseMemObject(_intersectionPoints));
+    CHECK_ERR(clReleaseMemObject(_intersectionPointNormals));
+    CHECK_ERR(clReleaseMemObject(_surfaceIds));
+    CHECK_ERR(clReleaseMemObject(_triangleMesh));
+}
+
 
 void Raytracing::stop()
 {
@@ -91,19 +238,56 @@ void Raytracing::stop()
     releaseCL();
 }
 
+void Raytracing::createGeometry()
+{
+    Assimp::Importer importer;
+    const aiScene *scene = importer.ReadFile("raytracing/monkey.obj",
+            aiProcess_Triangulate);// |
+            //aiProcess_JoinIdenticalVertices |
+            //aiProcess_SortByPType);
+    const aiMesh *mesh;
+    aiVector3D *vertices;
+
+
+    if ( !scene )
+    {
+        qDebug() << "WARNING: Geometry import failed.";
+        return;
+    }
+    if ( !scene->HasMeshes() || scene->mNumMeshes < 1 )
+    {
+        qDebug() << "WARNING: Can't load geometry: \
+            Imported file doesn't have any meshes.";
+        return;
+    }
+    if ( scene->mNumMeshes > 1)
+    {
+        qDebug() << "Imported file has multiple meshes, using first one.";
+    }
+    mesh = *(scene->mMeshes);
+    _numberOfVertices = mesh->mNumVertices;
+    vertices = mesh->mVertices;
+
+    _geometry = new cl_float4[_numberOfVertices];
+
+    for ( int i = 0; i < _numberOfVertices; ++i )
+    {
+        _geometry[i].x = vertices[i].x * 50;
+        _geometry[i].y = vertices[i].y * 50;
+        _geometry[i].z = vertices[i].z * 50 - 70;
+        qDebug() << "x:" << _geometry[i].x << "y:" << _geometry[i].y << "z:" << _geometry[i].z;
+    }
+}
+
 void Raytracing::resolutionChanged(int width, int height)
 {
+    _imageSize.x = width;
+    _imageSize.y = height;
     if (_isRunning)
     {
-        cl_int error;
-        CHECK_ERR(clReleaseMemObject(_texture));
-        _texture = clCreateFromGLTexture2D(_environment->getContext(),
-                CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
-                _mainWidget->getTextureId(), &error);
-        CHECK_ERR(error);
+        releaseBuffers();
+        allocateBuffers();
     }
-    _textureSize.x = width;
-    _textureSize.y = height;
 }
 
 QWidget *Raytracing::getConfigWidget()
