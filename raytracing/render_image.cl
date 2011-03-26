@@ -15,6 +15,11 @@ __kernel void renderImage(
         return;
 
     int indexPos = (pos.y * imageSize.y) + pos.x;
+    if (intersectionPoints[indexPos].w < 0.f)
+    {
+        write_imagef(glTexture, pos, (float4)(0.f, 0.f, 0.f, 0.f));
+        return;
+    }
 
     float4 emissionDir =
         normalize(emissionSource - intersectionPoints[indexPos]);
@@ -22,7 +27,7 @@ __kernel void renderImage(
     float dotProduct = dot(intersectionPointNormals[indexPos], emissionDir);
 
     float4 diff = dotProduct * (float4)(0.f, 1.f, 1.f, 1.f);
-    write_imagef(glTexture, pos, (float4)(1.f, 1.f, 1.f, 1.f));
+    write_imagef(glTexture, pos, diff + 0.5);
 
 
 }

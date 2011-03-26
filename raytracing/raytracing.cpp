@@ -11,14 +11,14 @@ Raytracing::Raytracing(Environment *environment, QWidget *parent)
     _imageSize.x = 800;
     _imageSize.y = 600;
 
-    _cameraPlaneDistance = 200.f;
+    _cameraPlaneDistance = 150.f;
 
     _cameraOrigin.x = 0.f;
     _cameraOrigin.y = 0.f;
-    _cameraOrigin.z = 0.f;
+    _cameraOrigin.z = -200.f;
     _cameraOrigin.w = 0.f;
 
-    _emisionSource.x = 0.f;
+    _emisionSource.x = 400.f;
     _emisionSource.y = 0.f;
     _emisionSource.z = 400.f;
     _emisionSource.w = 0.f;
@@ -97,17 +97,21 @@ void Raytracing::renderImage()
     CHECK_ERR(clSetKernelArg(_triangleIntersectionKernel, 8,
             sizeof(cl_mem), &_surfaceIds));
 
-    for (cl_int i = 0; i < _numberOfVertices - 2; ++i)
+    CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 1,
+                &_glTexture, 0, NULL, NULL));
+    for (cl_int i = 0; i < _numberOfVertices - 2; i+=3)
     {
         CHECK_ERR(clSetKernelArg(_triangleIntersectionKernel, 4,
                 sizeof(cl_int), &i));
         CHECK_ERR(clEnqueueNDRangeKernel(
                 _environment->getCommandQueue(),
-                _createRaysKernel,
+                _triangleIntersectionKernel,
                 2,
                 0, totalWorkItems, NULL,
                 0, NULL, NULL));
     }
+    CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 1,
+                &_glTexture, 0, NULL, NULL));
 
     // Render image to the screen:
     CHECK_ERR(clSetKernelArg(_renderImageKernel, 0,
@@ -122,13 +126,17 @@ void Raytracing::renderImage()
             sizeof(cl_float4), &_emisionSource));
     CHECK_ERR(clSetKernelArg(_renderImageKernel, 5,
             sizeof(cl_mem), &_surfaceIds));
+
+    CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 1,
+                &_glTexture, 0, NULL, NULL));
     CHECK_ERR(clEnqueueNDRangeKernel(
             _environment->getCommandQueue(),
             _renderImageKernel,
             2,
             0, totalWorkItems, NULL,
             0, NULL, NULL));
-
+    CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 1,
+                &_glTexture, 0, NULL, NULL));
     _mainWidget->updateGL();
 }
 

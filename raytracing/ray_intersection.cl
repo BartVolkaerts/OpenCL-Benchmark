@@ -17,6 +17,8 @@ __kernel void triangleIntersection(
     ray.x = get_global_id(0);
     ray.y = get_global_id(1);
 
+    //write_imagef(glTexture, ray, (float4)(1.f, 0.f, 0.f, 0.f));
+
     // Return if global id is out of image bounds.
     if (ray.x >= imageSize.x || ray.y >= imageSize.y)
         return;
