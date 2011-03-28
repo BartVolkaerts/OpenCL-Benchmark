@@ -30,9 +30,11 @@ class MainWindow
         void platformBoxChanged(const QString &currentIndex);
         void deviceBoxChanged(const QString &currentIndex);
         void launchBenchmark();
-        void stopBenchmark();
         void setBenchmarkWidgets(const QString &benchmark);
         void showAbout();
+
+    public slots:
+        void stopBenchmark();
 
     private:
         BaseBenchmark *getSelectedBenchmark();

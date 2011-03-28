@@ -15,6 +15,7 @@ ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
     connect(_source, SIGNAL(frame(IplImage*)), this, SLOT(newFrame(IplImage*)));
     connect(_configWidget, SIGNAL(changedevice(bool)), _source, SLOT(changeDevice(bool)));
     connect(_configWidget, SIGNAL(fileName(QString)), _source, SLOT(fileName(QString)));
+    connect(this, SIGNAL(stopRunning(bool)), parent, SLOT(stopBenchmark()));
 }
 
 ReadWrite::~ReadWrite()
@@ -74,8 +75,16 @@ void ReadWrite::newFrame(IplImage *image)
 
 void ReadWrite::execute()
 {
-    initCL();
-    _source->startCamera();
+    if(_source->getCaptureDev())
+    {
+        initCL();
+        _source->startCamera();
+    }
+    else
+    {
+        QMessageBox::information(_configWidget, "Oops..", "Please select a valid videosource.", QMessageBox::Ok, 0);
+        emit stopRunning(true);
+    }
 }
 
 void ReadWrite::stop()

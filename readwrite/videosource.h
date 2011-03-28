@@ -16,11 +16,13 @@ public:
 
     void startCamera();
     void stopCamera();
+    bool getCaptureDev();
 
 private:
     CvCapture *_capture;
     IplImage *_img;
     QTimer *_timer;
+    void checkForCam();
 
 public slots:
     void newFrame();

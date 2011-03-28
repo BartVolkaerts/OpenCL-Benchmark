@@ -16,16 +16,24 @@ VideoSource::~VideoSource()
 
 }
 
+void VideoSource::checkForCam()
+{
+    _capture = cvCaptureFromCAM(0);
+    if(_capture == NULL)
+    {
+        qDebug() << "No webcam was detected!";
+    }
+}
+
 void VideoSource::changeDevice(bool state)
 {
-    qDebug() << state;
     if (state)
     {
         if (_capture)
         {
             cvReleaseCapture(&_capture);
         }
-        _capture = cvCaptureFromCAM(0);
+        checkForCam();
     }
     else
     {
@@ -64,6 +72,14 @@ void VideoSource::startCamera()
 void VideoSource::stopCamera()
 {
     _timer->stop();
+}
+
+bool VideoSource::getCaptureDev()
+{
+    if (_capture == NULL)
+        return false;
+    else
+        return true;
 }
 
 
