@@ -3,7 +3,8 @@
 GlWidget::GlWidget(QWidget *parent) :
     QGLWidget(parent)
 {
-    _temp = cvLoadImage("readwrite/test.jpg");
+    //_temp = cvLoadImage("readwrite/test.jpg");
+    _temp = NULL;
 }
 
 GlWidget::~GlWidget()
@@ -19,6 +20,8 @@ void GlWidget::initializeGL()
     makeShaders();
     makeGeometry();
 
+    if (_temp == NULL)
+        return;
     createLeftTexture();
     createRightTexture();
 }
@@ -60,6 +63,8 @@ void GlWidget::paintGL()
     qglClearColor(Qt::black);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    if (_temp == NULL)
+        return;
     updateLeftTexture();
     updateRightTexture();
 }
@@ -140,6 +145,8 @@ void GlWidget::recreateTextures()
 
 void GlWidget::resizeGL(int width, int height)
 {
+    if (_temp == NULL)
+        return;
 
     double projectionMatrixValues[4];
     double scaleMatrixValues[4];
