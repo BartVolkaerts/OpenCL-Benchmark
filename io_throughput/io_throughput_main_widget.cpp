@@ -13,8 +13,8 @@ IoThroughputMainWidget::IoThroughputMainWidget(QWidget *parent)
     header.append("Write Speed (bytes/s)");
     header.append("Read Speed (bytes/s)");
     ui.table->setHorizontalHeaderLabels(header);
-    ui.plot->setAxisTitle(2, "Speed (bytes/s)");
-    ui.plot->setAxisTitle(0, "Data (bytes)");
+    ui.plot->setAxisTitle(0, "Speed (bytes/s)");
+    ui.plot->setAxisTitle(2, "Data (bytes)");
     ui.plot->setAxisScaleEngine(2, new QwtLog10ScaleEngine());
     ui.plot->insertLegend(new QwtLegend(this));
 
