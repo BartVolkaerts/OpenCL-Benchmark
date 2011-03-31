@@ -17,7 +17,6 @@ HEADERS +=\
     main_window.h\
     environment.h\
     base_benchmark.h\
-    graph.h\
     flops/flops_benchmark.h\
     flops/flops_main_widget.h\
     flops/flops_config_widget.h\
@@ -42,7 +41,6 @@ SOURCES +=\
     main_window.cpp\
     environment.cpp\
     base_benchmark.cpp\
-    graph.cpp\
     flops/flops_benchmark.cpp\
     flops/flops_main_widget.cpp\
     flops/flops_config_widget.cpp\
