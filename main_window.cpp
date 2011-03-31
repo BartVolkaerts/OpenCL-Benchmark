@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent)
             new Mandelbrot(_environment, this));
     addBenchmark(Raytracing::getName(),
             new Raytracing(_environment, this));
+    addBenchmark(IoThroughput::getName(),
+            new IoThroughput(_environment, this));
 
     ui.benchmarkList->addItems(_benchmarks.keys());
     ui.centralwidget->setLayout(new QVBoxLayout());

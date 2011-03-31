@@ -8,6 +8,7 @@
 #include "galaxy/galaxy.h"
 #include "mandelbrot/mandelbrot.h"
 #include "raytracing/raytracing.h"
+#include "io_throughput/io_throughput.h"
 
 #include <QMainWindow>
 #include <QVector>

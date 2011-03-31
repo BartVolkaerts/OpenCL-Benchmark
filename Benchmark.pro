@@ -17,6 +17,7 @@ HEADERS +=\
     main_window.h\
     environment.h\
     base_benchmark.h\
+    graph.h\
     flops/flops_benchmark.h\
     flops/flops_main_widget.h\
     flops/flops_config_widget.h\
@@ -32,12 +33,16 @@ HEADERS +=\
     mandelbrot/mandelbrot_config_widget.h\
     raytracing/raytracing.h\
     raytracing/raytracing_main_widget.h\
+    io_throughput/io_throughput.h\
+    io_throughput/io_throughput_main_widget.h\
+    io_throughput/io_throughput_config_widget.h\
 
 SOURCES +=\
     main.cpp\
     main_window.cpp\
     environment.cpp\
     base_benchmark.cpp\
+    graph.cpp\
     flops/flops_benchmark.cpp\
     flops/flops_main_widget.cpp\
     flops/flops_config_widget.cpp\
@@ -53,9 +58,14 @@ SOURCES +=\
     mandelbrot/mandelbrot_config_widget.cpp\
     raytracing/raytracing.cpp\
     raytracing/raytracing_main_widget.cpp\
+    io_throughput/io_throughput.cpp\
+    io_throughput/io_throughput_main_widget.cpp\
+    io_throughput/io_throughput_config_widget.cpp\
 
 FORMS += main_window.ui\
     flops/flops_main_widget.ui\
     flops/flops_config_widget.ui\
     readwrite/readwriteconfigwidget.ui\
     mandelbrot/mandelbrot_config_widget.ui\
+    io_throughput/io_throughput_main_widget.ui\
+    io_throughput/io_throughput_config_widget.ui\
