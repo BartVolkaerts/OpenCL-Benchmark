@@ -11,6 +11,8 @@ ReadWriteConfigWidget::ReadWriteConfigWidget(QWidget *parent) :
     connect(ui->checkBox, SIGNAL(toggled(bool)), ui->groupBox, SLOT(setDisabled(bool)));
     connect(ui->checkBox, SIGNAL(toggled(bool)), this, SLOT(changeCaptureDevice(bool)));
     connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(getFile()));
+
+    ui->lineEdit->setEnabled(false);
 }
 
 ReadWriteConfigWidget::~ReadWriteConfigWidget()
@@ -28,7 +30,7 @@ void ReadWriteConfigWidget::changeCaptureDevice(bool state)
 void ReadWriteConfigWidget::getFile()
 {
     QString temp = QFileDialog::getOpenFileName(this,
-         tr("Open Image"), "/home/", tr("Video Files (*.avi)"));
+         tr("Open Image"), "/home/", tr(""));
     if (temp != "")
     {
         ui->lineEdit->setText(temp);

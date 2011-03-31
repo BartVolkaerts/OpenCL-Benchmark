@@ -8,6 +8,7 @@
 #include "readwriteconfigwidget.h"
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QMessageBox>
 
 #ifdef __APPLE__
 #   include <OpenCL/cl_gl_ext.h>
@@ -59,6 +60,9 @@ private:
     cl_kernel _kernel;
     cl_mem _output;
     cl_mem _input;
+
+signals:
+    void stopRunning(bool);
 
 };
 
