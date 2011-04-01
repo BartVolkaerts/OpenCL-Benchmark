@@ -113,13 +113,14 @@ void ReadWrite::execute()
     {
         initCL();
         _source->startCamera();
+        _configWidget->setLocked();
     }
     else
     {
         QMessageBox::information(_configWidget, "Oops..", "Please select a valid videosource.", QMessageBox::Ok, 0);
         emit stopRunning(true);
     }
-    _configWidget->setLocked();
+
 }
 
 void ReadWrite::stop()
