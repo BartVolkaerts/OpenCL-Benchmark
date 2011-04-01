@@ -55,7 +55,7 @@ private:
     QVBoxLayout *_vLayout;
 
     QWidget *_mainWidget;
-    QWidget *_configWidget;
+    ReadWriteConfigWidget *_configWidget;
 
     cl_kernel _kernel;
     cl_mem _output;

@@ -31,6 +31,7 @@ void ReadWrite::newFrame(IplImage *image)
     _glWidget->newFrame(image);
     glFlush();
 
+    //GPU part
     size.x = image->width;
     size.y = image->height;
 
@@ -66,10 +67,43 @@ void ReadWrite::newFrame(IplImage *image)
     CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 2,
             texturesArray, 0, NULL, NULL));
 
-    qDebug() << getTimeMeasureResults();
+    _configWidget->setGPUTime(getTimeMeasureResults());
+
     CHECK_ERR(clReleaseMemObject(_input));
     CHECK_ERR(clReleaseMemObject(_output));
 
+    //CPU part
+    startTimeMeasure();
+    uchar *temp = (uchar *)image->imageData;
+    cl_float4 *output = new cl_float4[(image->imageSize)/image->nChannels];
+    for (int i = 0; i < image->imageSize; i+=image->nChannels)
+    {
+        output[i/image->nChannels].x = (float)temp[i]/255.f;
+        output[i/image->nChannels].y = (float)temp[i+1]/255.f;
+        output[i/image->nChannels].z = (float)temp[i+2]/255.f;
+    }
+    for(int i = 0; i<(image->imageSize/image->nChannels); i++)
+    {
+        if(output[i].x > 0.675f && output[i].x < 0.835f &&
+            output[i].y > 0.526f && output[i].y < 0.706f &&
+                output[i].z > 0.566f && output[i].z < 0.766f)
+        {
+            output[i].x = 1.0f;
+            output[i].y = 1.0f;
+            output[i].z = 1.0f;
+        }
+        else
+        {
+            output[i].x = 0.0f;
+            output[i].y = 0.0f;
+            output[i].z = 0.0f;
+        }
+    }
+    stopTimeMeasure();
+    delete output;
+    _configWidget->setCPUTime(getTimeMeasureResults());
+
+    //update textures
     _glWidget->updateGL();
 }
 
@@ -85,12 +119,14 @@ void ReadWrite::execute()
         QMessageBox::information(_configWidget, "Oops..", "Please select a valid videosource.", QMessageBox::Ok, 0);
         emit stopRunning(true);
     }
+    _configWidget->setLocked();
 }
 
 void ReadWrite::stop()
 {
     _source->stopCamera();
     releaseCL();
+    _configWidget->setUnlocked();
 }
 
 void ReadWrite::initCL()

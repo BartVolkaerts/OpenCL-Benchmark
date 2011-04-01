@@ -2,7 +2,7 @@
 #include <QLabel>
 #include <QTime>
 
-const int numberOfStars = 1000;
+const int numberOfStars = 1000000;
 const int numberOfGalacticCenters = 10;
 
 Galaxy::Galaxy(Environment *environment, QWidget *parent)

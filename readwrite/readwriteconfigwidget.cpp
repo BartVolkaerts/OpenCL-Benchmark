@@ -38,3 +38,32 @@ void ReadWriteConfigWidget::getFile()
     }
 }
 
+void ReadWriteConfigWidget::setCPUTime(double time)
+{
+    ui->cpuTimelbl->setText(QString::number(time));
+}
+
+void ReadWriteConfigWidget::setGPUTime(double time)
+{
+    ui->gpuTimelbl->setText(QString::number(time));
+}
+
+void ReadWriteConfigWidget::setLocked()
+{
+    ui->checkBox->setDisabled(true);
+    ui->groupBox->setDisabled(true);
+}
+
+void ReadWriteConfigWidget::setUnlocked()
+{
+    ui->checkBox->setDisabled(false);
+    if(ui->checkBox->isChecked())
+    {
+        ui->groupBox->setDisabled(true);
+    }
+    else
+    {
+        ui->groupBox->setDisabled(false);
+    }
+
+}
