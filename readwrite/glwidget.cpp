@@ -3,7 +3,6 @@
 GlWidget::GlWidget(QWidget *parent) :
     QGLWidget(parent)
 {
-    //_temp = cvLoadImage("readwrite/test.jpg");
     _temp = NULL;
 }
 

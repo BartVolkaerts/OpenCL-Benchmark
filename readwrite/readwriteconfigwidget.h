@@ -16,6 +16,11 @@ public:
     explicit ReadWriteConfigWidget(QWidget *parent = 0);
     ~ReadWriteConfigWidget();
 
+    void setCPUTime(double);
+    void setGPUTime(double);
+    void setLocked();
+    void setUnlocked();
+
 public slots:
     void changeCaptureDevice(bool);
     void getFile();
