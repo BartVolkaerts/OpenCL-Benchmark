@@ -42,7 +42,12 @@ void MandelbrotConfigWidget::supportDouble(bool supportDouble)
 
 bool MandelbrotConfigWidget::useCpu()
 {
-    return ui.cpuCheckBox->isChecked();
+    return ui.cpuRadioButton->isChecked();
+}
+
+bool MandelbrotConfigWidget::useOpenMP()
+{
+    return ui.openmpRadioButton->isChecked();
 }
 
 void MandelbrotConfigWidget::setResolution(int x, int y)
@@ -50,9 +55,19 @@ void MandelbrotConfigWidget::setResolution(int x, int y)
     ui.resolutionValueLabel->setText(QString("%1 x %2").arg(x).arg(y));
 }
 
-void MandelbrotConfigWidget::setRenderTime(double sec)
+void MandelbrotConfigWidget::setRenderTimeCPU(double sec)
 {
-    ui.renderTimeValueLabel->setText(QString("%1 ms").arg(sec * 1000.0));
+    ui.cpuRenderTimeValueLabel->setText(QString("%1 ms").arg(sec * 1000.0));
+}
+
+void MandelbrotConfigWidget::setRenderTimeOpenMP(double sec)
+{
+    ui.openmpRenderTimeValueLabel->setText(QString("%1 ms").arg(sec * 1000.0));
+}
+
+void MandelbrotConfigWidget::setRenderTimeOpenCL(double sec)
+{
+    ui.openclRenderTimeValueLabel->setText(QString("%1 ms").arg(sec * 1000.0));
 }
 
 void MandelbrotConfigWidget::setRunning(bool isRunning)

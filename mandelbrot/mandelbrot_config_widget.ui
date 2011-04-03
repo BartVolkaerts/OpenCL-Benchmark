@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>413</width>
-    <height>247</height>
+    <width>420</width>
+    <height>338</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -107,17 +107,34 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="6" column="0">
        <widget class="QLabel" name="useCPULabel">
         <property name="text">
          <string>Calculate on:</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
-       <widget class="QCheckBox" name="cpuCheckBox">
+      <item row="6" column="1">
+       <widget class="QRadioButton" name="cpuRadioButton">
         <property name="text">
-         <string>CPU</string>
+         <string>Single threat</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QRadioButton" name="openmpRadioButton">
+        <property name="text">
+         <string>OpenMP</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QRadioButton" name="openclradioButton">
+        <property name="text">
+         <string>OpenCL</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -148,14 +165,42 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="renderTimeLabel">
+       <widget class="QLabel" name="cpuRenderTimeLabel">
         <property name="text">
-         <string>Last render time:</string>
+         <string>Single threat time:</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLabel" name="renderTimeValueLabel">
+       <widget class="QLabel" name="cpuRenderTimeValueLabel">
+        <property name="text">
+         <string>N/A</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="openmpRenderTimeLabel">
+        <property name="text">
+         <string>OpenMP time:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="openclRenderTimeLabel">
+        <property name="text">
+         <string>OpenCL time:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="openmpRenderTimeValueLabel">
+        <property name="text">
+         <string>N/A</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="openclRenderTimeValueLabel">
         <property name="text">
          <string>N/A</string>
         </property>

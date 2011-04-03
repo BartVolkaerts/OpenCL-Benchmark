@@ -4,7 +4,7 @@ QT += opengl
 
 #DEFINES += GL_SHARING_EXTENSION="cl_khr_gl_sharing"
 
-unix:LIBS += -lOpenCL -levent -lqwt -lm -lopencv_core -lopencv_highgui -lassimp
+unix:LIBS += -lOpenCL -levent -lqwt -lm -lopencv_core -lopencv_highgui -lassimp -fopenmp
 unix:INCLUDEPATH += /usr/include/qwt /usr/include/assimp
 unix:DEFINES += GL_GLEXT_PROTOTYPES
 
@@ -12,6 +12,8 @@ OBJECTS_DIR = ./build
 MOC_DIR = ./build
 RCC_DIR = ./build
 UI_DIR = ./build
+
+QMAKE_CXXFLAGS += -fopenmp
 
 HEADERS +=\
     main_window.h\

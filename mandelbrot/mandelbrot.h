@@ -37,6 +37,7 @@ class Mandelbrot
         void bufferSizeChanged();
         void calculate();
         void calculateCPU();
+        void calculateOpenMP();
 
         void zoomIn(int amount);
         void zoomOut(int amount);

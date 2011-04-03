@@ -16,10 +16,13 @@ class MandelbrotConfigWidget
         bool useDouble() const;
 
         void setResolution(int x, int y);
-        void setRenderTime(double sec);
+        void setRenderTimeCPU(double sec);
+        void setRenderTimeOpenMP(double sec);
+        void setRenderTimeOpenCL(double sec);
         void supportDouble(bool supportDouble);
 
         bool useCpu();
+        bool useOpenMP();
 
     public slots:
         void setRunning(bool isRunning);
