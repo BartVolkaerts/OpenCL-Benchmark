@@ -24,6 +24,7 @@ class MandelbrotMainWidget
         void translate(const QPoint &point);
         void resetTranslation();
         void recreateTexture(int width, int height);
+        void setTexture(QImage *image);
 
     public slots:
         void setFixedSize(bool isFixed, int width, int heigth);

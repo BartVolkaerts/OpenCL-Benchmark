@@ -20,6 +20,9 @@
       <string>Settings</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="iterationsLabel">
         <property name="text">
@@ -101,6 +104,20 @@
         </property>
         <property name="checkable">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="useCPULabel">
+        <property name="text">
+         <string>Calculate on:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="cpuCheckBox">
+        <property name="text">
+         <string>CPU</string>
         </property>
        </widget>
       </item>

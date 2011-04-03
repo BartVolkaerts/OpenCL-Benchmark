@@ -1,4 +1,6 @@
 #include "mandelbrot.h"
+#include <QColor>
+#include <QImage>
 #include <QLabel>
 
 Mandelbrot::Mandelbrot(Environment *environment, QWidget *parent)
@@ -100,6 +102,17 @@ void Mandelbrot::calculate()
     if (!_isRunning)
         return;
 
+    if (_configWidget->useCpu())
+    {
+        calculateCPU();
+        return;
+    }
+    cl_int error;
+    _texture = clCreateFromGLTexture2D(_environment->getContext(),
+            CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
+            _mainWidget->getTexture(), &error);
+    CHECK_ERR(error);
+
     cl_int2 size;
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -150,6 +163,74 @@ void Mandelbrot::calculate()
     _configWidget->setRenderTime(getTimeMeasureResults());
     QApplication::restoreOverrideCursor();
 }
+
+void Mandelbrot::calculateCPU()
+{
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    QImage image(_mainWidget->width(), _mainWidget->height(), QImage::Format_RGB32);
+
+    startTimeMeasure();
+    for (int y = 0; y < _mainWidget->height(); ++y)
+        for (int x = 0; x < _mainWidget->width(); ++x)
+        {
+            double maxImaginary = (double)(_minImaginary + (_maxReal - _minReal) *
+                    _mainWidget->height() / _mainWidget->width());
+            double imaginaryNumber =
+                (double)(maxImaginary -
+                (y) * ((maxImaginary - _minImaginary)
+                    / (double)((_mainWidget->height()) - 1)));
+            double realNumber = (double)(_minReal +
+                    x * ((_maxReal - _minReal) / (double)_mainWidget->width()));
+
+            double zReal, zImaginary, tmp;
+            double zRealSquared, zImaginarySquared;
+            int color;
+            bool isInside = true;
+
+            zReal = realNumber;
+            zImaginary = imaginaryNumber;
+
+            for(int i = 0; i < _maxIterations; ++i)
+            {
+                zRealSquared = zReal * zReal;
+                zImaginarySquared = zImaginary * zImaginary;
+                if (zRealSquared + zImaginarySquared > 4)
+                {
+                    isInside = false;
+                    color = (i * 255 * 2) / _maxIterations;
+                    break;
+                }
+                tmp = zRealSquared - zImaginarySquared + realNumber;
+                zImaginary = 2 * zReal * zImaginary + imaginaryNumber;
+                zReal = tmp;
+            }
+
+            if (isInside)
+            {
+                image.setPixel(x, y, Qt::black);
+            }
+            else
+            {
+                QColor renderColor;
+                if (color < 255)
+                    renderColor.setRed(-color + 255);
+                // Blue
+                if (color > 255)
+                    renderColor.setGreen((-color + 255) + 255);
+                // Green
+                if (color > 127 && color < 255 + 127)
+                    renderColor.setBlue((-color + 127) + 255);
+                image.setPixel(x, y, renderColor.rgb());
+            }
+    }
+    stopTimeMeasure();
+    _configWidget->setRenderTime(getTimeMeasureResults());
+
+    _mainWidget->setTexture(&image);
+
+    QApplication::restoreOverrideCursor();
+}
+
 
 void Mandelbrot::execute()
 {

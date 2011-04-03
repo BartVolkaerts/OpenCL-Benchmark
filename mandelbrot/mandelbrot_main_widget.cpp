@@ -88,6 +88,24 @@ void MandelbrotMainWidget::recreateTexture(int width, int height)
 
 }
 
+void MandelbrotMainWidget::setTexture(QImage *image)
+{
+    glDeleteTextures(1, &_textureId);
+
+    glGenTextures(1, &_textureId);
+    glBindTexture(GL_TEXTURE_2D, _textureId);
+
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->width(), image->height(),
+            0, GL_BGRA, GL_UNSIGNED_BYTE, image->constBits());
+    updateGL();
+}
+
 void MandelbrotMainWidget::makeGeometry()
 {
     _vertexArray.append(QVector2D(-1.0f, -1.0f));

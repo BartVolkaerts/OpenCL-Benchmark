@@ -19,6 +19,8 @@ class MandelbrotConfigWidget
         void setRenderTime(double sec);
         void supportDouble(bool supportDouble);
 
+        bool useCpu();
+
     public slots:
         void setRunning(bool isRunning);
         void updateFixedSize();

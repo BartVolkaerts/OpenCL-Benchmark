@@ -40,6 +40,11 @@ void MandelbrotConfigWidget::supportDouble(bool supportDouble)
         ui.dataTypeComboBox->addItem("Double precision float");
 }
 
+bool MandelbrotConfigWidget::useCpu()
+{
+    return ui.cpuCheckBox->isChecked();
+}
+
 void MandelbrotConfigWidget::setResolution(int x, int y)
 {
     ui.resolutionValueLabel->setText(QString("%1 x %2").arg(x).arg(y));
