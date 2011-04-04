@@ -156,11 +156,11 @@ void Galaxy::generateRandom(cl_float4 *objects, int number, int boundary)
 
     for (int i = 0; i < number; ++i)
     {
-        objects[i].x = ((float)qrand() / (float)RAND_MAX) * boundary -
+        objects[i].s[0] = ((float)qrand() / (float)RAND_MAX) * boundary -
             boundary / 2;
-        objects[i].y = ((float)qrand() / (float)RAND_MAX) * boundary -
+        objects[i].s[1] = ((float)qrand() / (float)RAND_MAX) * boundary -
             boundary / 2;
-        objects[i].z = ((float)qrand() / (float)RAND_MAX) * boundary -
+        objects[i].s[2] = ((float)qrand() / (float)RAND_MAX) * boundary -
             boundary / 2;
     }
 }

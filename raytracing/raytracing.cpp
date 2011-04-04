@@ -8,20 +8,20 @@ Raytracing::Raytracing(Environment *environment, QWidget *parent)
     _mainWidget = new RaytracingMainWidget(parent);
     _geometry = NULL;
 
-    _imageSize.x = 800;
-    _imageSize.y = 600;
+    _imageSize.s[0] = 800;
+    _imageSize.s[1] = 600;
 
     _cameraPlaneDistance = 150.f;
 
-    _cameraOrigin.x = 0.f;
-    _cameraOrigin.y = 0.f;
-    _cameraOrigin.z = -200.f;
-    _cameraOrigin.w = 0.f;
+    _cameraOrigin.s[0] = 0.f;
+    _cameraOrigin.s[1] = 0.f;
+    _cameraOrigin.s[2] = -200.f;
+    _cameraOrigin.s[3] = 0.f;
 
-    _emisionSource.x = 400.f;
-    _emisionSource.y = 0.f;
-    _emisionSource.z = 400.f;
-    _emisionSource.w = 0.f;
+    _emisionSource.s[0] = 400.f;
+    _emisionSource.s[1] = 0.f;
+    _emisionSource.s[2] = 400.f;
+    _emisionSource.s[3] = 0.f;
 
     _isRunning = false;
 
@@ -58,8 +58,8 @@ void Raytracing::renderImage()
     // Calculate worksizes:
     const size_t localWorkSize[2] = {64, 64};
     const size_t totalWorkItems[2] = {
-        (_imageSize.x / localWorkSize[0] + 1) * localWorkSize[0],
-        (_imageSize.y / localWorkSize[1] + 1) * localWorkSize[1]
+        (_imageSize.s[0] / localWorkSize[0] + 1) * localWorkSize[0],
+        (_imageSize.s[1] / localWorkSize[1] + 1) * localWorkSize[1]
     };
 
     // Create Camera Rays:
@@ -167,7 +167,7 @@ void Raytracing::allocateBuffers()
     _raysFromCamera = clCreateBuffer(
             _environment->getContext(),
             CL_MEM_READ_WRITE,
-            sizeof(cl_float4) * _imageSize.x * _imageSize.y,
+            sizeof(cl_float4) * _imageSize.s[0] * _imageSize.s[1],
             NULL,
             &error);
     CHECK_ERR(error);
@@ -184,15 +184,15 @@ void Raytracing::allocateBuffers()
 
     // Closest intersection points for every ray:
     cl_float4 *hostIntersectionPoints =
-        new cl_float4[_imageSize.x * _imageSize.y];
-    for (int i = 0; i < _imageSize.x * _imageSize.y; ++i)
+        new cl_float4[_imageSize.s[0] * _imageSize.s[1]];
+    for (int i = 0; i < _imageSize.s[0] * _imageSize.s[1]; ++i)
     {
-        hostIntersectionPoints[i].w = -1.f;
+        hostIntersectionPoints[i].s[3] = -1.f;
     }
     _intersectionPoints = clCreateBuffer(
             _environment->getContext(),
             CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
-            sizeof(cl_float4) * _imageSize.x * _imageSize.y,
+            sizeof(cl_float4) * _imageSize.s[0] * _imageSize.s[1],
             hostIntersectionPoints,
             &error);
     CHECK_ERR(error);
@@ -202,7 +202,7 @@ void Raytracing::allocateBuffers()
     _intersectionPointNormals = clCreateBuffer(
             _environment->getContext(),
             CL_MEM_READ_WRITE,
-            sizeof(cl_float4) * _imageSize.x * _imageSize.y,
+            sizeof(cl_float4) * _imageSize.s[0] * _imageSize.s[1],
             NULL,
             &error);
     CHECK_ERR(error);
@@ -211,7 +211,7 @@ void Raytracing::allocateBuffers()
     _surfaceIds = clCreateBuffer(
             _environment->getContext(),
             CL_MEM_READ_WRITE,
-            sizeof(cl_int) * _imageSize.x * _imageSize.y,
+            sizeof(cl_int) * _imageSize.s[0] * _imageSize.s[1],
             NULL,
             &error);
     CHECK_ERR(error);
@@ -280,17 +280,17 @@ void Raytracing::createGeometry()
 
     for ( int i = 0; i < _numberOfVertices; ++i )
     {
-        _geometry[i].x = vertices[i].x * 50;
-        _geometry[i].y = vertices[i].y * 50;
-        _geometry[i].z = vertices[i].z * 50 - 70;
-        qDebug() << "x:" << _geometry[i].x << "y:" << _geometry[i].y << "z:" << _geometry[i].z;
+        _geometry[i].s[0] = vertices[i].x * 50;
+        _geometry[i].s[1] = vertices[i].y * 50;
+        _geometry[i].s[2] = vertices[i].z * 50 - 70;
+        qDebug() << "x:" << _geometry[i].s[0] << "y:" << _geometry[i].s[1] << "z:" << _geometry[i].s[2];
     }
 }
 
 void Raytracing::resolutionChanged(int width, int height)
 {
-    _imageSize.x = width;
-    _imageSize.y = height;
+    _imageSize.s[0] = width;
+    _imageSize.s[1] = height;
     if (_isRunning)
     {
         releaseBuffers();

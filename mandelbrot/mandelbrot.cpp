@@ -121,8 +121,8 @@ void Mandelbrot::calculate()
     cl_int2 size;
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    size.x = _mainWidget->width();
-    size.y = _mainWidget->height();
+    size.s[0] = _mainWidget->width();
+    size.s[1] = _mainWidget->height();
 
     CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_texture));
     CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_int2), &size));

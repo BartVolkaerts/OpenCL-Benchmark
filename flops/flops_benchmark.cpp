@@ -107,10 +107,10 @@ double FlopsBenchmark::runVector4Kernel(size_t dataSize, int iterations, size_t 
     cl_float4 *hostData = new cl_float4[dataSize];
     for (int i = 0; i < (int)dataSize; ++i)
     {
-        hostData[i].x = 1.002f + (float)i + (float)globalWorkSize;
-        hostData[i].y = 1.002f + (float)i - (float)globalWorkSize;
-        hostData[i].z = 1.002f - (float)i + (float)globalWorkSize;
-        hostData[i].w = 1.002f - (float)i - (float)globalWorkSize;
+        hostData[i].s[0] = 1.002f + (float)i + (float)globalWorkSize;
+        hostData[i].s[1] = 1.002f + (float)i - (float)globalWorkSize;
+        hostData[i].s[2] = 1.002f - (float)i + (float)globalWorkSize;
+        hostData[i].s[3] = 1.002f - (float)i - (float)globalWorkSize;
     }
     setData((float *)hostData, dataSize * sizeof(cl_float4));
 

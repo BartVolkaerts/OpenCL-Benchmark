@@ -32,8 +32,8 @@ void ReadWrite::newFrame(IplImage *image)
     glFlush();
 
     //GPU part
-    size.x = image->width;
-    size.y = image->height;
+    size.s[0] = image->width;
+    size.s[1] = image->height;
 
     _input = clCreateFromGLTexture2D(_environment->getContext(), CL_MEM_READ_WRITE,
                                      GL_TEXTURE_2D, 0, _glWidget->getLeftTexture(), &error);
@@ -54,8 +54,8 @@ void ReadWrite::newFrame(IplImage *image)
 
     const size_t localWorkSize[2] = {64, 64};
     const size_t totalWorkItems[2] = {
-        (size.x / localWorkSize[0] + 1) * localWorkSize[0],
-        (size.y / localWorkSize[1] + 1) * localWorkSize[1]
+        (size.s[0] / localWorkSize[0] + 1) * localWorkSize[0],
+        (size.s[1] / localWorkSize[1] + 1) * localWorkSize[1]
     };
 
     startTimeMeasure();
@@ -78,25 +78,25 @@ void ReadWrite::newFrame(IplImage *image)
     cl_float4 *output = new cl_float4[(image->imageSize)/image->nChannels];
     for (int i = 0; i < image->imageSize; i+=image->nChannels)
     {
-        output[i/image->nChannels].x = (float)temp[i]/255.f;
-        output[i/image->nChannels].y = (float)temp[i+1]/255.f;
-        output[i/image->nChannels].z = (float)temp[i+2]/255.f;
+        output[i/image->nChannels].s[0] = (float)temp[i]/255.f;
+        output[i/image->nChannels].s[1] = (float)temp[i+1]/255.f;
+        output[i/image->nChannels].s[2] = (float)temp[i+2]/255.f;
     }
     for(int i = 0; i<(image->imageSize/image->nChannels); i++)
     {
-        if(output[i].x > 0.675f && output[i].x < 0.835f &&
-            output[i].y > 0.526f && output[i].y < 0.706f &&
-                output[i].z > 0.566f && output[i].z < 0.766f)
+        if(output[i].s[0] > 0.675f && output[i].s[0] < 0.835f &&
+            output[i].s[1] > 0.526f && output[i].s[1] < 0.706f &&
+                output[i].s[2] > 0.566f && output[i].s[2] < 0.766f)
         {
-            output[i].x = 1.0f;
-            output[i].y = 1.0f;
-            output[i].z = 1.0f;
+            output[i].s[0] = 1.0f;
+            output[i].s[1] = 1.0f;
+            output[i].s[2] = 1.0f;
         }
         else
         {
-            output[i].x = 0.0f;
-            output[i].y = 0.0f;
-            output[i].z = 0.0f;
+            output[i].s[0] = 0.0f;
+            output[i].s[1] = 0.0f;
+            output[i].s[2] = 0.0f;
         }
     }
     stopTimeMeasure();
