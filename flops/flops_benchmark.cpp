@@ -61,7 +61,7 @@ void FlopsBenchmark::execute()
     int minData = _configWidget->getDataStartData();
 
 
-    float hostData[workGroupData];
+    float *hostData = new float[workGroupData];
     setData(hostData, workGroupData);
 
 
@@ -97,6 +97,7 @@ void FlopsBenchmark::execute()
     showResults();
 
     releaseCL();
+    delete[] hostData;
 }
 
 double FlopsBenchmark::runVector4Kernel(size_t dataSize, int iterations, size_t globalWorkSize)
