@@ -188,6 +188,7 @@ QMap<QString, cl_device_id> Environment::getDevicesMap()
     for (unsigned int i = 0; i < getDevicesNumber(_currentPlatform); ++i)
     {
         result.insert(getDeviceName(devices[i]), devices[i]);
+        qDebug() << getDeviceName(devices[i]);
     }
     delete[] devices;
     return result;
@@ -273,6 +274,8 @@ QMap<QString, cl_platform_id> Environment::getPlatformsMap()
     {
         result.insert(getPlatformInfo(platforms[i],
                     CL_PLATFORM_NAME), platforms[i]);
+        qDebug() << getPlatformInfo(platforms[i],
+                    CL_PLATFORM_NAME);
 
     }
     delete[] platforms;
