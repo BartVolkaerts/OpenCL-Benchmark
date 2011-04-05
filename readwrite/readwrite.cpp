@@ -73,7 +73,7 @@ void ReadWrite::newFrame(IplImage *image)
     CHECK_ERR(clReleaseMemObject(_output));
 
     //CPU part
-    startTimeMeasure();
+    /*
     uchar *temp = (uchar *)image->imageData;
     cl_float4 *output = new cl_float4[(image->imageSize)/image->nChannels];
     for (int i = 0; i < image->imageSize; i+=image->nChannels)
@@ -82,6 +82,9 @@ void ReadWrite::newFrame(IplImage *image)
         output[i/image->nChannels].y = (float)temp[i+1]/255.f;
         output[i/image->nChannels].z = (float)temp[i+2]/255.f;
     }
+    startTimeMeasure();
+    //openmp
+    //#pragma omp parallel for
     for(int i = 0; i<(image->imageSize/image->nChannels); i++)
     {
         if(output[i].x > 0.675f && output[i].x < 0.835f &&
@@ -102,6 +105,7 @@ void ReadWrite::newFrame(IplImage *image)
     stopTimeMeasure();
     delete output;
     _configWidget->setCPUTime(getTimeMeasureResults());
+    */
 
     //update textures
     _glWidget->updateGL();
