@@ -50,12 +50,10 @@ protected:
     void releaseCL();
 
 private:
-    GlWidget *_glWidget;
-    VideoSource *_source;
-    QVBoxLayout *_vLayout;
-
-    QWidget *_mainWidget;
+    GlWidget *_mainWidget;
     ReadWriteConfigWidget *_configWidget;
+
+    VideoSource *_source;
 
     cl_kernel _kernel;
     cl_mem _output;
