@@ -15,6 +15,7 @@ MandelbrotMainWidget::MandelbrotMainWidget(QWidget *parent)
 
 MandelbrotMainWidget::~MandelbrotMainWidget()
 {
+    //glDeleteTextures(1, &_textureId);
 }
 
 void MandelbrotMainWidget::paintGL()

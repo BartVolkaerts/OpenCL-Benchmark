@@ -72,11 +72,18 @@ void Mandelbrot::initCL()
 void Mandelbrot::releaseCL()
 {
     _isRunning = false;
+
     if (_texture)
+    {
         CHECK_ERR(clReleaseMemObject(_texture));
+        _texture = NULL;
+    }
 
     if (_kernel)
+    {
         CHECK_ERR(clReleaseKernel(_kernel));
+        _kernel = NULL;
+    }
 }
 
 void Mandelbrot::bufferSizeChanged()
