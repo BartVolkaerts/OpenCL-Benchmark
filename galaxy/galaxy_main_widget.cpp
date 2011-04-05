@@ -66,7 +66,7 @@ void GalaxyMainWidget::resizeGL(int width, int height)
 GLuint GalaxyMainWidget::makeGeometry(int numberOfStars)
 {
     _numberOfStars = numberOfStars;
-    GLuint elementData[numberOfStars];
+    GLuint *elementData = new GLuint[numberOfStars];
     for (int i = 0; i < numberOfStars; ++i)
         elementData[i] = i;
 
@@ -81,6 +81,7 @@ GLuint GalaxyMainWidget::makeGeometry(int numberOfStars)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
             numberOfStars * sizeof(GLuint),
             (void *)elementData, GL_STATIC_DRAW);
+    delete elementData;
     return _vertexBuffer;
 }
 
