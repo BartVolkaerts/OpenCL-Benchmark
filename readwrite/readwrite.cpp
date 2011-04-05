@@ -3,12 +3,9 @@
 ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
     : BaseBenchmark(environment, parent)
 {
-    _mainWidget = new QWidget(parent);
+    _mainWidget = new GlWidget(parent);
     _configWidget = new ReadWriteConfigWidget(parent);
     _source = new VideoSource(this);
-    _vLayout = new QVBoxLayout();
-    _vLayout->addWidget(_glWidget = new GlWidget(parent));
-    _mainWidget->setLayout(_vLayout);
 
     _kernel = NULL;
 
@@ -28,7 +25,7 @@ void ReadWrite::newFrame(IplImage *image)
     cl_int error;
     cl_int2 size;
 
-    _glWidget->newFrame(image);
+    _mainWidget->newFrame(image);
     glFlush();
 
     //GPU part
@@ -36,11 +33,11 @@ void ReadWrite::newFrame(IplImage *image)
     size.s[1] = image->height;
 
     _input = clCreateFromGLTexture2D(_environment->getContext(), CL_MEM_READ_WRITE,
-                                     GL_TEXTURE_2D, 0, _glWidget->getLeftTexture(), &error);
+                                     GL_TEXTURE_2D, 0, _mainWidget->getLeftTexture(), &error);
     CHECK_ERR(error);
 
     _output = clCreateFromGLTexture2D(_environment->getContext(), CL_MEM_READ_WRITE,
-                                     GL_TEXTURE_2D, 0, _glWidget->getRightTexture(), &error);
+                                     GL_TEXTURE_2D, 0, _mainWidget->getRightTexture(), &error);
     CHECK_ERR(error);
 
     cl_mem texturesArray[] = {_input, _output};
@@ -108,7 +105,7 @@ void ReadWrite::newFrame(IplImage *image)
     */
 
     //update textures
-    _glWidget->updateGL();
+    _mainWidget->updateGL();
 }
 
 void ReadWrite::execute()
