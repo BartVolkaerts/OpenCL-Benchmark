@@ -13,7 +13,7 @@ VideoSource::VideoSource(QObject *parent)
 
 VideoSource::~VideoSource()
 {
-
+    cvReleaseCapture(&_capture);
 }
 
 void VideoSource::checkForCam()

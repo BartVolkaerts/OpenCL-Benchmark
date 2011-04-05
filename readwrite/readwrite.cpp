@@ -5,9 +5,9 @@ ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
 {
     _mainWidget = new QWidget(parent);
     _configWidget = new ReadWriteConfigWidget(parent);
-    _source = new VideoSource();
+    _source = new VideoSource(this);
     _vLayout = new QVBoxLayout();
-    _vLayout->addWidget(_glWidget = new GlWidget());
+    _vLayout->addWidget(_glWidget = new GlWidget(parent));
     _mainWidget->setLayout(_vLayout);
 
     _kernel = NULL;
@@ -20,7 +20,7 @@ ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
 
 ReadWrite::~ReadWrite()
 {
-
+    clReleaseKernel(_kernel);
 }
 
 void ReadWrite::newFrame(IplImage *image)
