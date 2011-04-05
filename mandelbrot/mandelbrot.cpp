@@ -7,6 +7,7 @@ Mandelbrot::Mandelbrot(Environment *environment, QWidget *parent)
     : BaseBenchmark(environment, parent)
 {
     _texture = NULL;
+    _kernel = NULL;
     _mainWidget = new MandelbrotMainWidget(parent);
     _configWidget = new MandelbrotConfigWidget(parent);
 
@@ -70,6 +71,7 @@ void Mandelbrot::initCL()
 
 void Mandelbrot::releaseCL()
 {
+    _isRunning = false;
     if (_texture)
         CHECK_ERR(clReleaseMemObject(_texture));
 
