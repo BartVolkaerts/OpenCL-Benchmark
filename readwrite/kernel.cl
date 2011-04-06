@@ -1,3 +1,7 @@
+#define MASK_WIDTH 3
+#define MASK_HEIGHT 3
+
+
 __kernel void calculate(__read_only image2d_t input,
                         __write_only image2d_t output, 
                         const int2 size)
@@ -5,29 +9,29 @@ __kernel void calculate(__read_only image2d_t input,
     const int posX = get_global_id(0);
     const int posY = get_global_id(1);
     int2 pos;
-    float4 pixel; 
+    float4 inputPixel;
+    float4 outputPixel = (float4)0.f;
+    const float masker[MASK_HEIGHT][MASK_WIDTH] = {
+                                                {0.f,-1.f,0.f},
+                                                {-1.f,4.f,-1.f},
+                                                {0.f,-1.f,0.f}
+                                                };
+
     const sampler_t samplerA = CLK_NORMALIZED_COORDS_FALSE;
 
-    if(posX > size.x-1 || posY > size.y-1)
+    if(posX >= size.x-MASK_WIDTH/2 || posY >= size.y-MASK_HEIGHT/2 || 
+        posX < MASK_WIDTH/2 || posY < MASK_HEIGHT/2)
         return;
 
     pos = (int2)(posX, posY);
-    //pixel = (float4)(1.f ,1.f, 1.f, 1.f);
-    pixel = read_imagef(input, samplerA,pos);
-    if(pixel.x > 0.675f && pixel.x < 0.835f &&
-        pixel.y > 0.526f && pixel.y < 0.706f &&
-        pixel.z > 0.566f && pixel.z < 0.766f) 
+    for(int i = 0; i < MASK_HEIGHT; i++)
     {
-        pixel.x = 1.0f;
-        pixel.y = 1.0f;
-        pixel.z = 1.0f;
+        for (int j = 0; j < MASK_WIDTH; j++)
+        {
+            outputPixel += masker[i][j] * read_imagef(input,samplerA,(int2)(posX-(MASK_WIDTH/2)+j,posY-(MASK_HEIGHT/2)+i));
+        }
     }
-    else
-    {
-        pixel.x = 0.f;
-        pixel.y = 0.f;
-        pixel.z = 0.f;
-    }
-    write_imagef(output,pos,pixel);
+    outputPixel += read_imagef(input,samplerA,(int2)(posX,posY));
+    write_imagef(output,pos,outputPixel);
 }
 
