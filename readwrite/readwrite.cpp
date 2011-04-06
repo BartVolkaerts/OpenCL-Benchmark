@@ -134,7 +134,7 @@ void ReadWrite::stop()
 void ReadWrite::initCL()
 {
     _environment->createGLContext();
-    _environment->createProgram(QStringList("readwrite/test.cl"));
+    _environment->createProgram(QStringList("readwrite/kernel.cl"));
 
     _kernel = _environment->getKernel("calculate");
 }
