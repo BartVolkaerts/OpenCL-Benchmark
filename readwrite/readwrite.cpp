@@ -9,8 +9,6 @@ ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
 
     _edgekernel = NULL;
     _sharpkernel = NULL;
-    longest = 0;
-    shortest = 10;
 
     connect(_source, SIGNAL(frame(IplImage*)), this, SLOT(newFrame(IplImage*)));
     connect(_configWidget, SIGNAL(changedevice(bool)), _source, SLOT(changeDevice(bool)));
