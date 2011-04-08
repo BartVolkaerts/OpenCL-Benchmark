@@ -16,10 +16,13 @@ public:
     explicit ReadWriteConfigWidget(QWidget *parent = 0);
     ~ReadWriteConfigWidget();
 
-    void setCPUTime(double);
-    void setGPUTime(double);
+    void setOpenCLTime(double);
     void setLocked();
     void setUnlocked();
+
+    bool copyImage();
+    bool useEdgeDetection();
+    bool useSharpening();
 
 public slots:
     void changeCaptureDevice(bool);

@@ -7,7 +7,10 @@ ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
     _configWidget = new ReadWriteConfigWidget(parent);
     _source = new VideoSource(this);
 
-    _kernel = NULL;
+    _edgekernel = NULL;
+    _sharpkernel = NULL;
+    longest = 0;
+    shortest = 10;
 
     connect(_source, SIGNAL(frame(IplImage*)), this, SLOT(newFrame(IplImage*)));
     connect(_configWidget, SIGNAL(changedevice(bool)), _source, SLOT(changeDevice(bool)));
@@ -17,7 +20,8 @@ ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
 
 ReadWrite::~ReadWrite()
 {
-    clReleaseKernel(_kernel);
+    clReleaseKernel(_edgekernel);
+    clReleaseKernel(_sharpkernel);
 }
 
 void ReadWrite::newFrame(IplImage *image)
@@ -42,10 +46,6 @@ void ReadWrite::newFrame(IplImage *image)
 
     cl_mem texturesArray[] = {_input, _output};
 
-    CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_input));
-    CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_mem), &_output));
-    CHECK_ERR(clSetKernelArg(_kernel, 2, sizeof(cl_int2), &size));
-
     CHECK_ERR(clEnqueueAcquireGLObjects(_environment->getCommandQueue(), 2,
                                         texturesArray, 0, NULL, NULL));
 
@@ -55,54 +55,50 @@ void ReadWrite::newFrame(IplImage *image)
         (size.s[1] / localWorkSize[1] + 1) * localWorkSize[1]
     };
 
-    startTimeMeasure();
-    CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(),
-                _kernel, 2, 0, totalWorkItems, NULL, 0, NULL, NULL));
-    CHECK_ERR(clFinish(_environment->getCommandQueue()));
-    stopTimeMeasure();
+    if(_configWidget->copyImage())
+    {
+        const size_t src[3]={0,0,0};
+        const size_t dst[3]={0,0,0};
+        const size_t reg[3]={image->width,image->height,1};
+
+        startTimeMeasure();
+        CHECK_ERR(clEnqueueCopyImage(_environment->getCommandQueue(), _input, _output,
+                                     src,dst,reg,0,NULL,NULL));
+        CHECK_ERR(clFinish(_environment->getCommandQueue()));
+        stopTimeMeasure();
+    }
+    else if(_configWidget->useEdgeDetection())
+    {
+        CHECK_ERR(clSetKernelArg(_edgekernel, 0, sizeof(cl_mem), &_input));
+        CHECK_ERR(clSetKernelArg(_edgekernel, 1, sizeof(cl_mem), &_output));
+        CHECK_ERR(clSetKernelArg(_edgekernel, 2, sizeof(cl_int2), &size));
+
+        startTimeMeasure();
+        CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(),
+                    _edgekernel, 2, 0, totalWorkItems, NULL, 0, NULL, NULL));
+        CHECK_ERR(clFinish(_environment->getCommandQueue()));
+        stopTimeMeasure();
+    }
+    else if(_configWidget->useSharpening())
+    {
+        CHECK_ERR(clSetKernelArg(_sharpkernel, 0, sizeof(cl_mem), &_input));
+        CHECK_ERR(clSetKernelArg(_sharpkernel, 1, sizeof(cl_mem), &_output));
+        CHECK_ERR(clSetKernelArg(_sharpkernel, 2, sizeof(cl_int2), &size));
+
+        startTimeMeasure();
+        CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(),
+                    _sharpkernel, 2, 0, totalWorkItems, NULL, 0, NULL, NULL));
+        CHECK_ERR(clFinish(_environment->getCommandQueue()));
+        stopTimeMeasure();
+    }
 
     CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 2,
             texturesArray, 0, NULL, NULL));
 
-    _configWidget->setGPUTime(getTimeMeasureResults());
+
 
     CHECK_ERR(clReleaseMemObject(_input));
     CHECK_ERR(clReleaseMemObject(_output));
-
-    //CPU part
-    /*
-    uchar *temp = (uchar *)image->imageData;
-    cl_float4 *output = new cl_float4[(image->imageSize)/image->nChannels];
-    for (int i = 0; i < image->imageSize; i+=image->nChannels)
-    {
-        output[i/image->nChannels].s[0] = (float)temp[i]/255.f;
-        output[i/image->nChannels].s[1] = (float)temp[i+1]/255.f;
-        output[i/image->nChannels].s[2] = (float)temp[i+2]/255.f;
-    }
-    startTimeMeasure();
-    //openmp
-    //#pragma omp parallel for
-    for(int i = 0; i<(image->imageSize/image->nChannels); i++)
-    {
-        if(output[i].s[0] > 0.675f && output[i].s[0] < 0.835f &&
-            output[i].s[1] > 0.526f && output[i].s[1] < 0.706f &&
-                output[i].s[2] > 0.566f && output[i].s[2] < 0.766f)
-        {
-            output[i].s[0] = 1.0f;
-            output[i].s[1] = 1.0f;
-            output[i].s[2] = 1.0f;
-        }
-        else
-        {
-            output[i].s[0] = 0.0f;
-            output[i].s[1] = 0.0f;
-            output[i].s[2] = 0.0f;
-        }
-    }
-    stopTimeMeasure();
-    delete output;
-    _configWidget->setCPUTime(getTimeMeasureResults());
-    */
 
     //update textures
     _mainWidget->updateGL();
@@ -135,13 +131,14 @@ void ReadWrite::initCL()
 {
     _environment->createGLContext();
     _environment->createProgram(QStringList("readwrite/kernel.cl"));
-
-    _kernel = _environment->getKernel("calculate");
+    _edgekernel = _environment->getKernel("edgedetect");
+    _sharpkernel = _environment->getKernel("sharpening");
 }
 
 void ReadWrite::releaseCL()
 {
-    clReleaseKernel(_kernel);
+    clReleaseKernel(_edgekernel);
+    clReleaseKernel(_sharpkernel);
     _environment->createContext();
 }
 

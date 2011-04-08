@@ -8,11 +8,12 @@ ReadWriteConfigWidget::ReadWriteConfigWidget(QWidget *parent) :
     ui(new Ui::ReadWriteConfigWidget)
 {
     ui->setupUi(this);
-    connect(ui->checkBox, SIGNAL(toggled(bool)), ui->groupBox, SLOT(setDisabled(bool)));
+    connect(ui->checkBox, SIGNAL(toggled(bool)), ui->pushButton, SLOT(setDisabled(bool)));
     connect(ui->checkBox, SIGNAL(toggled(bool)), this, SLOT(changeCaptureDevice(bool)));
     connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(getFile()));
 
     ui->lineEdit->setEnabled(false);
+    ui->copyButton->setChecked(true);
 }
 
 ReadWriteConfigWidget::~ReadWriteConfigWidget()
@@ -38,32 +39,32 @@ void ReadWriteConfigWidget::getFile()
     }
 }
 
-void ReadWriteConfigWidget::setCPUTime(double time)
+void ReadWriteConfigWidget::setOpenCLTime(double time)
 {
-    ui->cpuTimelbl->setText(QString::number(time));
-}
-
-void ReadWriteConfigWidget::setGPUTime(double time)
-{
-    ui->gpuTimelbl->setText(QString::number(time));
+    ui->openCLTimeLbl->setText(QString::number(time));
 }
 
 void ReadWriteConfigWidget::setLocked()
 {
-    ui->checkBox->setDisabled(true);
     ui->groupBox->setDisabled(true);
 }
 
 void ReadWriteConfigWidget::setUnlocked()
 {
-    ui->checkBox->setDisabled(false);
-    if(ui->checkBox->isChecked())
-    {
-        ui->groupBox->setDisabled(true);
-    }
-    else
-    {
         ui->groupBox->setDisabled(false);
-    }
+}
 
+bool ReadWriteConfigWidget::copyImage()
+{
+    return ui->copyButton->isChecked();
+}
+
+bool ReadWriteConfigWidget::useEdgeDetection()
+{
+    return ui->edgeButton->isChecked();
+}
+
+bool ReadWriteConfigWidget::useSharpening()
+{
+    return ui->sharpButton->isChecked();
 }

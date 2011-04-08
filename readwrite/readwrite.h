@@ -55,9 +55,14 @@ private:
 
     VideoSource *_source;
 
-    cl_kernel _kernel;
+    cl_kernel _edgekernel;
+    cl_kernel _sharpkernel;
     cl_mem _output;
     cl_mem _input;
+
+    double avgCopy;
+    double avgEdge;
+    double avgSharp;
 
 signals:
     void stopRunning(bool);
