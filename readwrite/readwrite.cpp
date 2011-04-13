@@ -10,9 +10,11 @@ ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
     _edgekernel = NULL;
     _sharpkernel = NULL;
 
-    connect(_source, SIGNAL(frame(IplImage*)), this, SLOT(newFrame(IplImage*)));
     connect(_configWidget, SIGNAL(changedevice(bool)), _source, SLOT(changeDevice(bool)));
     connect(_configWidget, SIGNAL(fileName(QString)), _source, SLOT(fileName(QString)));
+    connect(_configWidget, SIGNAL(fileName(QString)), this, SLOT(setSourceProp()));
+    connect(_configWidget, SIGNAL(changedevice(bool)), this, SLOT(setSourceProp()));
+    connect(_source, SIGNAL(frame(IplImage*)), this, SLOT(newFrame(IplImage*)));
     connect(this, SIGNAL(stopRunning(bool)), parent, SLOT(stopBenchmark()));
 }
 
@@ -93,8 +95,6 @@ void ReadWrite::newFrame(IplImage *image)
     CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 2,
             texturesArray, 0, NULL, NULL));
 
-
-
     CHECK_ERR(clReleaseMemObject(_input));
     CHECK_ERR(clReleaseMemObject(_output));
 
@@ -138,6 +138,17 @@ void ReadWrite::releaseCL()
     clReleaseKernel(_edgekernel);
     clReleaseKernel(_sharpkernel);
     _environment->createContext();
+}
+
+void ReadWrite::setSourceProp()
+{
+    QSize size = _source->getResolution();
+    QString sizeProp;
+    sizeProp.append(QString::number(size.width()));
+    sizeProp.append(" x ");
+    sizeProp.append(QString::number(size.height()));
+    _configWidget->setFramerate(QString::number(_source->getFramerate()));
+    _configWidget->setResolution(sizeProp);
 }
 
 QWidget *ReadWrite::getConfigWidget()

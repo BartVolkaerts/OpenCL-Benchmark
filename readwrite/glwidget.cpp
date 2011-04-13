@@ -18,11 +18,6 @@ void GlWidget::initializeGL()
 
     makeShaders();
     makeGeometry();
-
-    if (_temp == NULL)
-        return;
-    createLeftTexture();
-    createRightTexture();
 }
 
 void GlWidget::createLeftTexture()

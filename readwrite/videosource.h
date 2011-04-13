@@ -4,6 +4,7 @@
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 #include <QTimer>
+#include <QSize>
 
 class VideoSource
     : public QObject
@@ -17,6 +18,8 @@ public:
     void startCamera();
     void stopCamera();
     bool getCaptureDev();
+    double getFramerate();
+    QSize getResolution();
 
 private:
     CvCapture *_capture;

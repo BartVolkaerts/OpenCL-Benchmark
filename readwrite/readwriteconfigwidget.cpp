@@ -44,6 +44,16 @@ void ReadWriteConfigWidget::setOpenCLTime(double time)
     ui->openCLTimeLbl->setText(QString::number(time));
 }
 
+void ReadWriteConfigWidget::setResolution(QString res)
+{
+    ui->resLbl->setText(res);
+}
+
+void ReadWriteConfigWidget::setFramerate(QString framerate)
+{
+    ui->frameRlbl->setText(framerate);
+}
+
 void ReadWriteConfigWidget::setLocked()
 {
     ui->groupBox->setDisabled(true);
@@ -51,7 +61,7 @@ void ReadWriteConfigWidget::setLocked()
 
 void ReadWriteConfigWidget::setUnlocked()
 {
-        ui->groupBox->setDisabled(false);
+    ui->groupBox->setDisabled(false);
 }
 
 bool ReadWriteConfigWidget::copyImage()

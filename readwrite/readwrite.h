@@ -44,6 +44,7 @@ public slots:
 
 private slots:
     void newFrame(IplImage *);
+    void setSourceProp();
 
 protected:
     void initCL();

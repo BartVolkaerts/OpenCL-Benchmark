@@ -82,4 +82,15 @@ bool VideoSource::getCaptureDev()
         return true;
 }
 
+double VideoSource::getFramerate()
+{
+    return cvGetCaptureProperty(_capture, CV_CAP_PROP_FPS);
+}
 
+QSize VideoSource::getResolution()
+{
+    QSize size;
+    size.setWidth(cvGetCaptureProperty(_capture, CV_CAP_PROP_FRAME_WIDTH));
+    size.setHeight(cvGetCaptureProperty(_capture, CV_CAP_PROP_FRAME_HEIGHT));
+    return size;
+}

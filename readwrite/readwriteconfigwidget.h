@@ -17,6 +17,8 @@ public:
     ~ReadWriteConfigWidget();
 
     void setOpenCLTime(double);
+    void setResolution(QString);
+    void setFramerate(QString);
     void setLocked();
     void setUnlocked();
 
