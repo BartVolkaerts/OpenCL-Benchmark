@@ -46,6 +46,7 @@ private slots:
     void newFrame(IplImage *);
     void setSourceProp();
 
+
 protected:
     void initCL();
     void releaseCL();
@@ -61,12 +62,9 @@ private:
     cl_mem _output;
     cl_mem _input;
 
-    double avgCopy;
-    double avgEdge;
-    double avgSharp;
-
 signals:
     void stopRunning(bool);
+    void addFrame();
 
 };
 

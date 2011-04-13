@@ -29,10 +29,18 @@ public:
 public slots:
     void changeCaptureDevice(bool);
     void getFile();
+    void addFrame();
+
+protected:
+    void timerEvent(QTimerEvent *);
+    int _timerId;
 
 signals:
     void changedevice(bool);
     void fileName(QString);
+
+private:
+    int _renderedFrames;
 
 private:
     Ui::ReadWriteConfigWidget *ui;

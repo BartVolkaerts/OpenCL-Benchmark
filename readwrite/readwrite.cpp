@@ -3,7 +3,7 @@
 ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
     : BaseBenchmark(environment, parent)
 {
-    _mainWidget = new GlWidget(parent);
+    _mainWidget = new GlWidget();
     _configWidget = new ReadWriteConfigWidget(parent);
     _source = new VideoSource(this);
 
@@ -12,9 +12,12 @@ ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
 
     connect(_configWidget, SIGNAL(changedevice(bool)), _source, SLOT(changeDevice(bool)));
     connect(_configWidget, SIGNAL(fileName(QString)), _source, SLOT(fileName(QString)));
-    connect(_configWidget, SIGNAL(fileName(QString)), this, SLOT(setSourceProp()));
-    connect(_configWidget, SIGNAL(changedevice(bool)), this, SLOT(setSourceProp()));
     connect(_source, SIGNAL(frame(IplImage*)), this, SLOT(newFrame(IplImage*)));
+    connect(_configWidget, SIGNAL(changedevice(bool)), this, SLOT(setSourceProp()));
+    connect(_configWidget, SIGNAL(fileName(QString)), this, SLOT(setSourceProp()));
+
+    connect(this,SIGNAL(addFrame()), _configWidget, SLOT(addFrame()));
+
     connect(this, SIGNAL(stopRunning(bool)), parent, SLOT(stopBenchmark()));
 }
 
@@ -100,12 +103,15 @@ void ReadWrite::newFrame(IplImage *image)
 
     //update textures
     _mainWidget->updateGL();
+
+    emit addFrame();
 }
 
 void ReadWrite::execute()
 {
     if(_source->getCaptureDev())
     {
+        _mainWidget->updateGL();
         initCL();
         _source->startCamera();
         _configWidget->setLocked();
@@ -147,6 +153,7 @@ void ReadWrite::setSourceProp()
     sizeProp.append(QString::number(size.width()));
     sizeProp.append(" x ");
     sizeProp.append(QString::number(size.height()));
+
     _configWidget->setFramerate(QString::number(_source->getFramerate()));
     _configWidget->setResolution(sizeProp);
 }

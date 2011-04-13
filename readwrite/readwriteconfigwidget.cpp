@@ -57,11 +57,13 @@ void ReadWriteConfigWidget::setFramerate(QString framerate)
 void ReadWriteConfigWidget::setLocked()
 {
     ui->groupBox->setDisabled(true);
+    _timerId = startTimer(1000);
 }
 
 void ReadWriteConfigWidget::setUnlocked()
 {
     ui->groupBox->setDisabled(false);
+    killTimer(_timerId);
 }
 
 bool ReadWriteConfigWidget::copyImage()
@@ -77,4 +79,15 @@ bool ReadWriteConfigWidget::useEdgeDetection()
 bool ReadWriteConfigWidget::useSharpening()
 {
     return ui->sharpButton->isChecked();
+}
+
+void ReadWriteConfigWidget::addFrame()
+{
+    _renderedFrames++;
+}
+
+void ReadWriteConfigWidget::timerEvent(QTimerEvent *)
+{
+    ui->frameRlbl->setText(QString::number(_renderedFrames));
+    _renderedFrames = 0;
 }
