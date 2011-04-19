@@ -65,7 +65,7 @@ void VideoSource::startCamera()
 {
     int frameRate = cvGetCaptureProperty(_capture, CV_CAP_PROP_FPS);
     if (frameRate == -1)
-        frameRate = 30;
+        frameRate = 25;
     _timer->start(qRound(1000.0/frameRate));
 }
 
