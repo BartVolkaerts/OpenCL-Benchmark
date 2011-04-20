@@ -7,8 +7,7 @@ ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
     _configWidget = new ReadWriteConfigWidget(parent);
     _source = new VideoSource(this);
 
-    _edgekernel = NULL;
-    _sharpkernel = NULL;
+    _kernel = NULL;
 
     connect(_configWidget, SIGNAL(changedevice(bool)), _source, SLOT(changeDevice(bool)));
     connect(_configWidget, SIGNAL(fileName(QString)), _source, SLOT(fileName(QString)));
@@ -23,17 +22,16 @@ ReadWrite::ReadWrite(Environment *environment, QWidget *parent)
 
 ReadWrite::~ReadWrite()
 {
-    clReleaseKernel(_edgekernel);
-    clReleaseKernel(_sharpkernel);
+    clReleaseKernel(_kernel);
 }
 
 void ReadWrite::newFrame(IplImage *image)
 {
     cl_int error;
     cl_int2 size;
+    cl_int check;
 
     _mainWidget->newFrame(image);
-    glFlush();
 
     //GPU part
     size.s[0] = image->width;
@@ -70,31 +68,26 @@ void ReadWrite::newFrame(IplImage *image)
         CHECK_ERR(clFinish(_environment->getCommandQueue()));
         stopTimeMeasure();
     }
-    else if(_configWidget->useEdgeDetection())
+    else
     {
-        CHECK_ERR(clSetKernelArg(_edgekernel, 0, sizeof(cl_mem), &_input));
-        CHECK_ERR(clSetKernelArg(_edgekernel, 1, sizeof(cl_mem), &_output));
-        CHECK_ERR(clSetKernelArg(_edgekernel, 2, sizeof(cl_int2), &size));
+        if (_configWidget->useEdgeDetection())
+            check = 0;
+        if (_configWidget->useSharpening())
+            check = 1;
+
+        CHECK_ERR(clSetKernelArg(_kernel, 0, sizeof(cl_mem), &_input));
+        CHECK_ERR(clSetKernelArg(_kernel, 1, sizeof(cl_mem), &_output));
+        CHECK_ERR(clSetKernelArg(_kernel, 2, sizeof(cl_int2), &size));
+        CHECK_ERR(clSetKernelArg(_kernel, 3, sizeof(cl_int), &check));
 
         startTimeMeasure();
         CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(),
-                    _edgekernel, 2, 0, totalWorkItems, NULL, 0, NULL, NULL));
-        CHECK_ERR(clFinish(_environment->getCommandQueue()));
-        stopTimeMeasure();
-    }
-    else if(_configWidget->useSharpening())
-    {
-        CHECK_ERR(clSetKernelArg(_sharpkernel, 0, sizeof(cl_mem), &_input));
-        CHECK_ERR(clSetKernelArg(_sharpkernel, 1, sizeof(cl_mem), &_output));
-        CHECK_ERR(clSetKernelArg(_sharpkernel, 2, sizeof(cl_int2), &size));
-
-        startTimeMeasure();
-        CHECK_ERR(clEnqueueNDRangeKernel(_environment->getCommandQueue(),
-                    _sharpkernel, 2, 0, totalWorkItems, NULL, 0, NULL, NULL));
+                    _kernel, 2, 0, totalWorkItems, NULL, 0, NULL, NULL));
         CHECK_ERR(clFinish(_environment->getCommandQueue()));
         stopTimeMeasure();
     }
 
+    _configWidget->setOpenCLTime(getTimeMeasureResults());
     CHECK_ERR(clEnqueueReleaseGLObjects(_environment->getCommandQueue(), 2,
             texturesArray, 0, NULL, NULL));
 
@@ -135,14 +128,12 @@ void ReadWrite::initCL()
 {
     _environment->createGLContext();
     _environment->createProgram(QStringList("readwrite/kernel.cl"));
-    _edgekernel = _environment->getKernel("edgedetect");
-    _sharpkernel = _environment->getKernel("sharpening");
+    _kernel = _environment->getKernel("process");
 }
 
 void ReadWrite::releaseCL()
 {
-    clReleaseKernel(_edgekernel);
-    clReleaseKernel(_sharpkernel);
+    clReleaseKernel(_kernel);
     _environment->createContext();
 }
 
