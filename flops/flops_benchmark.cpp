@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <iostream>
 #include <cmath>
+#include <QString>
 
 const int WORKGROUP_AMOUNT_OF_DATA = 100000;
 
@@ -15,24 +16,36 @@ FlopsBenchmark::FlopsBenchmark(Environment *environment, QWidget *parent)
 
     _mainWidget = new FlopsMainWidget(parent);
     _configWidget = new FlopsConfigWidget(parent);
+    _kernel = NULL;
 }
 
 FlopsBenchmark::~FlopsBenchmark()
 {
 }
 
-void FlopsBenchmark::initCL()
+void FlopsBenchmark::makeKernel(QString kernel, QString type)
 {
+    if (_kernel)
+        clReleaseKernel(_kernel);
+
     _environment->createContext();
-    _environment->createProgram(QStringList("flops/kernel.cl"));
-    _kernel = _environment->getKernel("add");
-    _vector4Kernel = _environment->getKernel("addVector4");
+    if (useVector)
+    {
+        _environment->createProgram(
+            QStringList(QString("flops/%1\.cl").arg(kernel))
+            QString("-D TEST_TYPE=%1").arg(type));
+    }
+    else
+    {
+        _environment->createProgram(
+                QStringList(QString("flops/%1\.cl").arg(kernel)));
+    }
+    _kernel = _environment->getKernel(kernel);
 }
 
 void FlopsBenchmark::releaseCL()
 {
     clReleaseKernel(_kernel);
-    clReleaseKernel(_vector4Kernel);
 }
 
 QWidget *FlopsBenchmark::getConfigWidget()
@@ -47,10 +60,10 @@ QWidget *FlopsBenchmark::getMainWidget()
 
 void FlopsBenchmark::execute()
 {
+    _environment->createContext();
+
     _mainWidget->setWorkSizeProgress(0);
     _mainWidget->setDataProgress(0);
-
-    initCL();
 
     const int OPERATION16_FLOP = 4096;
 
@@ -71,7 +84,6 @@ void FlopsBenchmark::execute()
     double operations = (double)workGroupData *
                         (double)iterations *
                         (double)OPERATION16_FLOP;
-#if 1
     for (int i = 32; i <= maxWorkGroupSize; i*=2)
     {
         _workSizeResults[i] = operations /
@@ -82,7 +94,6 @@ void FlopsBenchmark::execute()
         _mainWidget->setWorkSizeProgress((((int)log2(i / 32) * 100) /
                     (int)log2(maxWorkGroupSize / 32)));
     }
-#endif
     for (int i = minData;i <= maxData; i*=10)
     {
         operations = (double)i *

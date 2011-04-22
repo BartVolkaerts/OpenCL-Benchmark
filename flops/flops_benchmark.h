@@ -43,12 +43,11 @@ class FlopsBenchmark
         double runKernel(size_t dataSize, int iterations, size_t globalWorkSize);
         double runVector4Kernel(size_t dataSize, int iterations, size_t globalWorkSize);
         void showResults();
-        void initCL();
+        void makeKernel(QString kernel);
         void releaseCL();
 
     private:
         cl_kernel _kernel;
-        cl_kernel _vector4Kernel;
 
         cl_mem _deviceInput;
         cl_mem _deviceOutput;

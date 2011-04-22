@@ -1,6 +1,7 @@
 #ifndef FLOPS_CONFIG_WIDGET_H
 #define FLOPS_CONFIG_WIDGET_H
 #include <QWidget>
+#include <QString>
 #include "ui_flops_config_widget.h"
 
 class FlopsConfigWidget
@@ -15,6 +16,7 @@ class FlopsConfigWidget
         int getDataMaxData();
         int getDataStartData();
         int getWorkSizeAmountOfData();
+        QString getDataType();
 
     private:
         Ui::FlopsConfigWidget ui;
