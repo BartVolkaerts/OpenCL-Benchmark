@@ -81,8 +81,16 @@ void FlopsBenchmark::execute()
 void FlopsBenchmark::runBenchmark(bool isVector)
 {
     _environment->createContext();
-    makeKernel(_configWidget->getKernelType(),
-            QString(_mainWidget->getDataType()));
+    if (!isVector)
+    {
+        makeKernel(_configWidget->getKernelType(),
+                QString(_mainWidget->getDataType()));
+    }
+    else
+    {
+        makeKernel(_configWidget->getKernelType(),
+                QString(_mainWidget->getDataType() + "4"));
+    }
 
     const int OPERATIONS_PER_THREAD = 2048;
 
@@ -94,6 +102,10 @@ void FlopsBenchmark::runBenchmark(bool isVector)
 
     void *hostData = allocateHostMemory(workGroupData, isVector);
 
+    double operations = (double)workGroupData *
+                        (double)iterations *
+                        (double)OPERATIONS_PER_THREAD;
+
     if (!isVector)
     {
         _singleWorkSizeResults.clear();
@@ -103,12 +115,8 @@ void FlopsBenchmark::runBenchmark(bool isVector)
     {
         _vectorWorkSizeResults.clear();
         _vectorDataResults.clear();
-        workGroupData /= 4;
+        workGroupData;
     }
-
-    double operations = (double)workGroupData *
-                        (double)iterations *
-                        (double)OPERATIONS_PER_THREAD;
 
     for (int i = 32; i <= maxWorkGroupSize; i*=2)
     {
@@ -123,7 +131,7 @@ void FlopsBenchmark::runBenchmark(bool isVector)
         else
         {
             _vectorWorkSizeResults[i] = operations /
-                runKernel(workGroupData, iterations, i);
+                runKernel(workGroupData, iterations / 4, i);
             _mainWidget->setWorkSizeProgress((((int)log2(i / 32) * 100) /
                         (int)log2(maxWorkGroupSize / 32)) / 2 + 50);
         }
@@ -142,7 +150,7 @@ void FlopsBenchmark::runBenchmark(bool isVector)
         }
         else
         {
-            _vectorDataResults[i] = operations / runKernel(i, iterations, 256);
+            _vectorDataResults[i] = operations / runKernel(i, iterations / 4, 256);
             _mainWidget->setDataProgress((((int)log(i / minData) * 100) /
                         (int)log(maxData / minData)) / 2);
         }
