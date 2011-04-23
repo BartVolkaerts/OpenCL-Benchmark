@@ -159,7 +159,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QRadioButton" name="devButton">
+        <widget class="QRadioButton" name="divButton">
          <property name="text">
           <string>Divide</string>
          </property>

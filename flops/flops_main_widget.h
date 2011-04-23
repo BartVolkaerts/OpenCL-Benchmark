@@ -4,6 +4,7 @@
 #include <QMap>
 #include <QPolygonF>
 #include <QVector>
+#include <QString>
 #include "ui_flops_main_widget.h"
 #include "flops_stat_viewer.h"
 
@@ -16,7 +17,7 @@ class FlopsMainWidget
         FlopsMainWidget(QWidget *parent = 0);
         virtual ~FlopsMainWidget();
 
-        void setCurrentDataType(int index);
+        void setCurrentDataType();
         int getSelectedTab();
 
         void showResults(
@@ -26,6 +27,8 @@ class FlopsMainWidget
                 QMap<size_t, double> &vectorDataData);
         void setWorkSizeProgress(int progress);
         void setDataProgress(int progress);
+        QString getDataType();
+        int getDataTypeId();
 
         enum {
             FLOAT = 0,

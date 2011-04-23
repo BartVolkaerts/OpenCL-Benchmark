@@ -3,6 +3,12 @@
  * This kernel test addition.
  * OPERATION16 = 4096 flop
  */
+#ifndef TEST_TYPE
+#   define TEST_TYPE float
+#endif
+#ifdef USE_DOUBLE
+#   pragma OPENCL EXTENSION cl_khr_fp64: enable
+#endif
 
 // 128  Operations
 #define OPERATION(x, y) \
@@ -136,9 +142,6 @@
     x = x + y; \
 
 // 128 * 16 = 2048 Operations
-#ifndef TEST_TYPE
-#   define TEST_TYPE float
-#endif
 
 __kernel void addition(__global TEST_TYPE *buffer,
         const int size, const int iterations)

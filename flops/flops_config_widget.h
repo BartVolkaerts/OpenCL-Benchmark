@@ -16,7 +16,7 @@ class FlopsConfigWidget
         int getDataMaxData();
         int getDataStartData();
         int getWorkSizeAmountOfData();
-        QString getDataType();
+        QString getKernelType();
 
     private:
         Ui::FlopsConfigWidget ui;

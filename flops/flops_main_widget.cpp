@@ -25,8 +25,9 @@ FlopsMainWidget::~FlopsMainWidget()
 {
 }
 
-void FlopsMainWidget::setCurrentDataType(int index)
+void FlopsMainWidget::setCurrentDataType()
 {
+    int index = ui.tabWidget->currentIndex();
     if (ui.tabWidget->widget(index))
         _currentDataType = index;
 }
@@ -55,4 +56,24 @@ void FlopsMainWidget::setWorkSizeProgress(int progress)
 void FlopsMainWidget::setDataProgress(int progress)
 {
     _statViewers[_currentDataType]->setDataProgress(progress);
+}
+
+QString FlopsMainWidget::getDataType()
+{
+    switch (_currentDataType)
+    {
+        case FLOAT:
+            return "float";
+        case DOUBLE:
+            return "double";
+        case INTEGER:
+            return "int";
+        case HALF:
+            return "half";
+    }
+}
+
+int FlopsMainWidget::getDataTypeId()
+{
+    return _currentDataType;
 }

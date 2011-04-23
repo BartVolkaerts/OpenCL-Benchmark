@@ -24,7 +24,7 @@ class FlopsBenchmark
         FlopsBenchmark(Environment *environment, QWidget *parent = 0);
         virtual ~FlopsBenchmark();
 
-        void setData(void *input, size_t size);
+        void createCLBuffer(void *input, size_t size);
         void readResult(void *result, size_t dataSize);
 
         QWidget *getConfigWidget();
@@ -43,24 +43,27 @@ class FlopsBenchmark
         double runKernel(size_t dataSize, int iterations, size_t globalWorkSize);
         double runVector4Kernel(size_t dataSize, int iterations, size_t globalWorkSize);
         void showResults();
-        void makeKernel(QString kernel);
+        void makeKernel(QString kernel, QString type);
         void releaseCL();
+        void *allocateHostMemory(int size, bool isVector);
+        void releaseHostMemory(void *hostBuffer);
+        void runBenchmark(bool isVector);
 
     private:
         cl_kernel _kernel;
 
-        cl_mem _deviceInput;
-        cl_mem _deviceOutput;
+        cl_mem _clBuffer;
+        size_t _bufferSize;
 
         Environment *_environment;
 
         FlopsConfigWidget *_configWidget;
         FlopsMainWidget *_mainWidget;
 
-        QMap<size_t, double> _workSizeResults;
-        QMap<size_t, double> _dataResults;
-        QMap<size_t, double> _workSizeResultsVector4;
-        QMap<size_t, double> _dataResultsVector4;
+        QMap<size_t, double> _singleWorkSizeResults;
+        QMap<size_t, double> _singleDataResults;
+        QMap<size_t, double> _vectorWorkSizeResults;
+        QMap<size_t, double> _vectorDataResults;
 
 };
 #endif // FLOPS_BENCHMARK_H
