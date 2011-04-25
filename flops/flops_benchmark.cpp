@@ -46,8 +46,16 @@ void FlopsBenchmark::makeKernel(QString kernel, QString type)
 
 void FlopsBenchmark::releaseCL()
 {
-    CHECK_ERR(clReleaseKernel(_kernel));
-    _kernel = NULL;
+    if (_kernel)
+    {
+        CHECK_ERR(clReleaseKernel(_kernel));
+        _kernel = NULL;
+    }
+    if (_clBuffer)
+    {
+        CHECK_ERR(clReleaseMemObject(_clBuffer));
+        _clBuffer = NULL;
+    }
 }
 
 QWidget *FlopsBenchmark::getConfigWidget()
@@ -62,6 +70,7 @@ QWidget *FlopsBenchmark::getMainWidget()
 
 void FlopsBenchmark::execute()
 {
+    _environment->createContext();
     _mainWidget->setWorkSizeProgress(0);
     _mainWidget->setDataProgress(0);
     _mainWidget->setCurrentDataType();
@@ -80,14 +89,14 @@ void FlopsBenchmark::execute()
 
 void FlopsBenchmark::runBenchmark(bool isVector)
 {
-    _environment->createContext();
     if (!isVector)
     {
         makeKernel(_configWidget->getKernelType(),
                 QString(_mainWidget->getDataType()));
     }
-    else
+    else if (_configWidget->getKernelType() != QString("divide"));
     {
+        qDebug() << "makeVector";
         makeKernel(_configWidget->getKernelType(),
                 QString(_mainWidget->getDataType() + "4"));
     }
@@ -111,7 +120,7 @@ void FlopsBenchmark::runBenchmark(bool isVector)
         _singleWorkSizeResults.clear();
         _singleDataResults.clear();
     }
-    else
+    else if (_configWidget->getKernelType() != QString("divide"));
     {
         _vectorWorkSizeResults.clear();
         _vectorDataResults.clear();
@@ -128,7 +137,7 @@ void FlopsBenchmark::runBenchmark(bool isVector)
             _mainWidget->setWorkSizeProgress((((int)log2(i / 32) * 100) /
                         (int)log2(maxWorkGroupSize / 32)) / 2);
         }
-        else
+        else if (_configWidget->getKernelType() != QString("divide"));
         {
             _vectorWorkSizeResults[i] = operations /
                 runKernel(workGroupData, iterations / 4, i);
@@ -148,7 +157,7 @@ void FlopsBenchmark::runBenchmark(bool isVector)
             _mainWidget->setDataProgress((((int)log(i / minData) * 100) /
                         (int)log(maxData / minData)) / 2);
         }
-        else
+        else if (_configWidget->getKernelType() != QString("divide"));
         {
             _vectorDataResults[i] = operations / runKernel(i, iterations / 4, 256);
             _mainWidget->setDataProgress((((int)log(i / minData) * 100) /

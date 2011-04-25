@@ -149,7 +149,7 @@ __kernel void muladd(__global TEST_TYPE *buffer,
     const int threatId = get_global_id(0);
     const int localId = get_local_id(0);
 
-    volatile TEST_TYPE temp = 12;//buffer[threatId];
+    volatile TEST_TYPE temp = 12;
     if (threatId < size)
     {
         TEST_TYPE x = temp;

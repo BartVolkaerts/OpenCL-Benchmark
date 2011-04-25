@@ -149,15 +149,15 @@ __kernel void divide(__global TEST_TYPE *buffer,
     const int threatId = get_global_id(0);
     const int localId = get_local_id(0);
 
-    TEST_TYPE temp = buffer[threatId];
+    volatile TEST_TYPE temp = 12;
     if (threatId < size)
     {
         TEST_TYPE x = temp;
-        TEST_TYPE y = 1.01f;
+        TEST_TYPE y = (TEST_TYPE)(11);
         for (int i = 0; i < iterations; ++i)
         {
             OPERATION(x, y);
-            OPERATION(x, y);
+            OPERATION(x, y)
             OPERATION(x, y);
             OPERATION(x, y);
             OPERATION(x, y);
@@ -173,7 +173,6 @@ __kernel void divide(__global TEST_TYPE *buffer,
             OPERATION(x, y);
             OPERATION(x, y);
         }
-        buffer[localId] = x + y;
+        temp = x / y;
     }
-    buffer[threatId] = temp;
 }
