@@ -94,7 +94,7 @@ void FlopsBenchmark::runBenchmark(bool isVector)
         makeKernel(_configWidget->getKernelType(),
                 QString(_mainWidget->getDataType()));
     }
-    else if (_configWidget->getKernelType() != QString("divide"));
+    else if (_configWidget->getKernelType() != QString("divide"))
     {
         qDebug() << "makeVector";
         makeKernel(_configWidget->getKernelType(),
@@ -120,11 +120,10 @@ void FlopsBenchmark::runBenchmark(bool isVector)
         _singleWorkSizeResults.clear();
         _singleDataResults.clear();
     }
-    else if (_configWidget->getKernelType() != QString("divide"));
+    else if (_configWidget->getKernelType() != QString("divide"))
     {
         _vectorWorkSizeResults.clear();
         _vectorDataResults.clear();
-        workGroupData;
     }
 
     for (int i = 32; i <= maxWorkGroupSize; i*=2)
@@ -137,7 +136,7 @@ void FlopsBenchmark::runBenchmark(bool isVector)
             _mainWidget->setWorkSizeProgress((((int)log2(i / 32) * 100) /
                         (int)log2(maxWorkGroupSize / 32)) / 2);
         }
-        else if (_configWidget->getKernelType() != QString("divide"));
+        else if (_configWidget->getKernelType() != QString("divide"))
         {
             _vectorWorkSizeResults[i] = operations /
                 runKernel(workGroupData, iterations / 4, i);
@@ -157,7 +156,7 @@ void FlopsBenchmark::runBenchmark(bool isVector)
             _mainWidget->setDataProgress((((int)log(i / minData) * 100) /
                         (int)log(maxData / minData)) / 2);
         }
-        else if (_configWidget->getKernelType() != QString("divide"));
+        else if (_configWidget->getKernelType() != QString("divide"))
         {
             _vectorDataResults[i] = operations / runKernel(i, iterations / 4, 256);
             _mainWidget->setDataProgress((((int)log(i / minData) * 100) /
@@ -200,6 +199,7 @@ void *FlopsBenchmark::allocateHostMemory(int size, bool isVector)
         switch (_mainWidget->getDataTypeId())
         {
             case FlopsMainWidget::FLOAT:
+            default:
                 hostData = new cl_float[size];
                 createCLBuffer(hostData, _bufferSize = sizeof(cl_float) * size);
                 break;
@@ -223,6 +223,7 @@ void *FlopsBenchmark::allocateHostMemory(int size, bool isVector)
         switch (_mainWidget->getDataTypeId())
         {
             case FlopsMainWidget::FLOAT:
+            default:
                 hostData = new cl_float4[size / 4];
                 createCLBuffer(hostData, _bufferSize = sizeof(cl_float4) * size / 4);
                 break;
