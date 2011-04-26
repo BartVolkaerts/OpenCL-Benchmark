@@ -1,6 +1,9 @@
 #ifndef VIDEOSOURCE_H
 #define VIDEOSOURCE_H
 
+// Workaround OpenCV  ptrdiff_t error
+#include "cstddef"
+
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 #include <QTimer>
