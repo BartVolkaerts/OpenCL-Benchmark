@@ -16,6 +16,9 @@ FlopsBenchmark::FlopsBenchmark(Environment *environment, QWidget *parent)
 
     _mainWidget = new FlopsMainWidget(parent);
     _configWidget = new FlopsConfigWidget(parent);
+
+    _mainWidget->setDoubleSupport(
+            _environment->deviceSupportsDouble());
     _kernel = NULL;
 }
 

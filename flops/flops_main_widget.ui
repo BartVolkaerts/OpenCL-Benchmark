@@ -20,7 +20,7 @@
       <enum>QTabWidget::West</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <property name="tabsClosable">
       <bool>false</bool>
@@ -41,11 +41,6 @@
      <widget class="QWidget" name="doubleTab">
       <attribute name="title">
        <string>Double Float</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="halfTab">
-      <attribute name="title">
-       <string>Half Float</string>
       </attribute>
      </widget>
     </widget>

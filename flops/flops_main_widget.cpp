@@ -32,6 +32,11 @@ void FlopsMainWidget::setCurrentDataType()
         _currentDataType = index;
 }
 
+void FlopsMainWidget::setDoubleSupport(bool isSupported)
+{
+    ui.tabWidget->setTabEnabled(DOUBLE, isSupported);
+}
+
 int FlopsMainWidget::getSelectedTab()
 {
     return ui.tabWidget->currentIndex();

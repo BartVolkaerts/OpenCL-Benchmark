@@ -29,6 +29,7 @@ class FlopsMainWidget
         void setDataProgress(int progress);
         QString getDataType();
         int getDataTypeId();
+        void setDoubleSupport(bool isSupported);
 
         enum {
             FLOAT = 0,
