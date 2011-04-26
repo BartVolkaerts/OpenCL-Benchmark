@@ -26,3 +26,15 @@ int FlopsConfigWidget::getWorkSizeAmountOfData()
 {
     return ui.workGroupDataBox->value();
 }
+
+QString FlopsConfigWidget::getKernelType()
+{
+    if (ui.addButton->isChecked())
+        return "addition";
+    else if (ui.divButton->isChecked())
+        return "divide";
+    else if (ui.madButton->isChecked())
+        return "muladd";
+    else
+        return "multiply";
+}

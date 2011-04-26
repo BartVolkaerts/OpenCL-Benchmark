@@ -22,6 +22,7 @@ HEADERS +=\
     flops/flops_benchmark.h\
     flops/flops_main_widget.h\
     flops/flops_config_widget.h\
+    flops/flops_stat_viewer.h\
     readwrite/glwidget.h\
     readwrite/videosource.h\
     galaxy/galaxy_main_widget.h\
@@ -46,6 +47,7 @@ SOURCES +=\
     flops/flops_benchmark.cpp\
     flops/flops_main_widget.cpp\
     flops/flops_config_widget.cpp\
+    flops/flops_stat_viewer.cpp\
     readwrite/glwidget.cpp\
     readwrite/videosource.cpp\
     galaxy/galaxy_main_widget.cpp\
@@ -65,7 +67,9 @@ SOURCES +=\
 FORMS += main_window.ui\
     flops/flops_main_widget.ui\
     flops/flops_config_widget.ui\
+    flops/flops_stat_viewer.ui\
     readwrite/readwriteconfigwidget.ui\
     mandelbrot/mandelbrot_config_widget.ui\
     io_throughput/io_throughput_main_widget.ui\
     io_throughput/io_throughput_config_widget.ui\
+

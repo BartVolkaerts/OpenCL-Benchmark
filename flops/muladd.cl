@@ -1,16 +1,16 @@
 /*
- * Flops Benchmark kernel.
+ * Flops/Integer Benchmark kernel.
+ * This kernel test addition.
  * OPERATION16 = 4096 flop
  */
+#ifndef TEST_TYPE
+#   define TEST_TYPE float
+#endif
+#ifdef USE_DOUBLE
+#   pragma OPENCL EXTENSION cl_khr_fp64: enable
+#endif
 
-/*
- * TODO:
- *  - Constant geheugen.
- *  - Overdracht Shared -> Global memory verwaarloosbaar.
- *  - Timing in kernel zelf
- */
-
-// 128 * 2 Operations
+// 128  Operations
 #define OPERATION(x, y) \
     y = x * y + x; \
     x = y * x + y; \
@@ -141,39 +141,19 @@
     y = x * y + x; \
     x = y * x + y; \
 
-// 128 * 2 * 16 = 4096 Operations
-/*
-#define OPERATION16(x, y)\
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-    OPERATION; \
-#endif
-*/
+// 128 * 16 = 2048 Operations
 
-__kernel void add(__global float *output,
-        __local float *temp, const int size, const int iterations)
+__kernel void muladd(__global TEST_TYPE *buffer,
+        const int size, const int iterations)
 {
     const int threatId = get_global_id(0);
     const int localId = get_local_id(0);
 
-    temp[localId] = output[threatId];
+    volatile TEST_TYPE temp = 12;
     if (threatId < size)
     {
-        float x = temp[localId];
-        float y = 1.01f;
+        TEST_TYPE x = temp;
+        TEST_TYPE y = (TEST_TYPE)(11);
         for (int i = 0; i < iterations; ++i)
         {
             OPERATION(x, y);
@@ -184,52 +164,7 @@ __kernel void add(__global float *output,
             OPERATION(x, y);
             OPERATION(x, y);
             OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
         }
-        temp[localId] = x + y;
+        temp = x * y;
     }
-    output[threatId] = temp[localId];
-}
-
-__kernel void addVector4(__global float4 *output,
-        __local float4 *temp, const int size, const int iterations)
-{
-    const int threatId = get_global_id(0);
-    const int localId = get_local_id(0);
-
-    temp[localId] = output[threatId];
-    if (threatId < size)
-    {
-        float4 x = temp[localId];
-        float4 y = (1.01f, -1.01f, 2.002f, 3.0014f);
-
-        for (int i = 0; i < iterations; ++i)
-        {
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-            OPERATION(x, y);
-        }
-        temp[localId] = x + y;
-    }
-    output[threatId] = temp[localId];
 }

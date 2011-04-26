@@ -3,8 +3,10 @@
 #include <QWidget>
 #include <QMap>
 #include <QPolygonF>
-#include <qwt_plot_curve.h>
+#include <QVector>
+#include <QString>
 #include "ui_flops_main_widget.h"
+#include "flops_stat_viewer.h"
 
 class FlopsMainWidget
     : public QWidget
@@ -15,27 +17,31 @@ class FlopsMainWidget
         FlopsMainWidget(QWidget *parent = 0);
         virtual ~FlopsMainWidget();
 
-        void showResults(QMap<size_t, double> &workSizeData,
-                QMap<size_t, double> &dataData,
-                QMap<size_t, double> &workSizeVector4Data,
-                QMap<size_t, double> &dataVector4Data);
+        void setCurrentDataType();
+        int getSelectedTab();
+
+        void showResults(
+                QMap<size_t, double> &singleWorkSizeData,
+                QMap<size_t, double> &singleDataData,
+                QMap<size_t, double> &vectorWorkSizeData,
+                QMap<size_t, double> &vectorDataData);
         void setWorkSizeProgress(int progress);
         void setDataProgress(int progress);
+        QString getDataType();
+        int getDataTypeId();
+
+        enum {
+            FLOAT = 0,
+            INTEGER = 1,
+            DOUBLE = 2,
+            HALF = 3
+            };
 
     private:
         Ui::FlopsMainWidget ui;
 
-        QwtPlotCurve *_workSizeCurve;
-        QPolygonF _workSizeData;
-
-        QwtPlotCurve *_workSizeVector4Curve;
-        QPolygonF _workSizeVector4Data;
-
-        QwtPlotCurve *_dataCurve;
-        QPolygonF _dataData;
-
-        QwtPlotCurve *_dataVector4Curve;
-        QPolygonF _dataVector4Data;
+        int _currentDataType;
+        QVector<FlopsStatViewer *> _statViewers;
 };
 
 #endif // FLOPS_MAIN_WIDGET_H

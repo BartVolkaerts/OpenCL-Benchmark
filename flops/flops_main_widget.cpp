@@ -1,4 +1,5 @@
 #include "flops_main_widget.h"
+
 #include <qwt_scale_engine.h>
 #include <QPen>
 #include <QBrush>
@@ -7,128 +8,72 @@ FlopsMainWidget::FlopsMainWidget(QWidget *parent)
     : QWidget(parent)
 {
     ui.setupUi(this);
+    
+    for (int i = 0; i < ui.tabWidget->count(); ++i)
+    {
+        QWidget *widget = ui.tabWidget->widget(i);
+        FlopsStatViewer *statViewer = new FlopsStatViewer(this);
+        widget->setLayout(new QHBoxLayout);
+        widget->layout()->addWidget(statViewer);
+        _statViewers.append(statViewer);
+    }
 
-    ui.workSizeFlopsPlot->setAxisTitle(0, "Flops");
-    ui.workSizeFlopsPlot->setAxisTitle(2, "Workgroup size");
-    ui.workSizeFlopsPlot->setAxisScaleEngine(2, new QwtLog10ScaleEngine());
-    ui.workSizeFlopsPlot->setAxisScaleEngine(0, new QwtLog10ScaleEngine());
-
-    ui.dataFlopsPlot->setAxisTitle(0, "Flops");
-    ui.dataFlopsPlot->setAxisTitle(2, "Data");
-    ui.dataFlopsPlot->setAxisScaleEngine(2, new QwtLog10ScaleEngine());
-    ui.dataFlopsPlot->setAxisScaleEngine(0, new QwtLog10ScaleEngine());
-
-    _workSizeCurve = new QwtPlotCurve("curve");
-    _workSizeCurve->setData(_workSizeData);
-    _workSizeCurve->attach(ui.workSizeFlopsPlot);
-
-    _workSizeVector4Curve = new QwtPlotCurve("vector4curve");
-    _workSizeVector4Curve->setData(_workSizeVector4Data);
-    _workSizeVector4Curve->attach(ui.workSizeFlopsPlot);
-
-    _dataCurve = new QwtPlotCurve("curve");
-    _dataCurve->setData(_dataData);
-    _dataCurve->attach(ui.dataFlopsPlot);
-
-    _dataVector4Curve = new QwtPlotCurve("vector4curve");
-    _dataVector4Curve->setData(_dataVector4Data);
-    _dataVector4Curve->attach(ui.dataFlopsPlot);
-
-    _workSizeCurve->setPen(QPen(QBrush(Qt::red), 3.0));
-    _workSizeVector4Curve->setPen(QPen(QBrush(Qt::blue), 3.0));
-
-    _dataCurve->setPen(QPen(QBrush(Qt::red), 3.0));
-    _dataVector4Curve->setPen(QPen(QBrush(Qt::blue), 3.0));
-
-    QStringList header;
-    header.append("Float");
-    header.append("4D Vector (float)");
-
-    ui.workSizeTable->setHorizontalHeaderLabels(header);
-    ui.dataTable->setHorizontalHeaderLabels(header);
+    _currentDataType = ui.tabWidget->currentIndex();
 }
 
 FlopsMainWidget::~FlopsMainWidget()
 {
-    delete _workSizeCurve;
-    delete _workSizeVector4Curve;
-    delete _dataVector4Curve;
-    delete _dataCurve;
+}
+
+void FlopsMainWidget::setCurrentDataType()
+{
+    int index = ui.tabWidget->currentIndex();
+    if (ui.tabWidget->widget(index))
+        _currentDataType = index;
+}
+
+int FlopsMainWidget::getSelectedTab()
+{
+    return ui.tabWidget->currentIndex();
+}
+
+void FlopsMainWidget::showResults(
+        QMap<size_t, double> &singleWorkSizeData,
+        QMap<size_t, double> &singleDataData,
+        QMap<size_t, double> &vectorWorkSizeData,
+        QMap<size_t, double> &vectorDataData)
+{
+    _statViewers[_currentDataType]->showResults(
+            singleWorkSizeData, singleDataData,
+            vectorWorkSizeData, vectorDataData);
 }
 
 void FlopsMainWidget::setWorkSizeProgress(int progress)
 {
-    ui.workSizeProgressBar->setValue(progress);
+    _statViewers[_currentDataType]->setWorkSizeProgress(progress);
 }
 
 void FlopsMainWidget::setDataProgress(int progress)
 {
-    ui.dataProgressBar->setValue(progress);
+    _statViewers[_currentDataType]->setDataProgress(progress);
 }
 
-void FlopsMainWidget::showResults(QMap<size_t, double> &workSizeData,
-        QMap<size_t, double> &dataData,
-        QMap<size_t, double> &workSizeVector4Data,
-        QMap<size_t, double> &dataVector4Data)
+QString FlopsMainWidget::getDataType()
 {
-    QMap<size_t, double>::const_iterator it;
-    QStringList header;
-
-    ui.workSizeTable->setRowCount(workSizeData.count());
-    ui.dataTable->setRowCount(dataData.count());
-
-    _workSizeData.clear();
-    int i = 0;
-    for (it = workSizeData.constBegin();
-            it != workSizeData.constEnd(); ++it)
+    switch (_currentDataType)
     {
-        header.append(QString::number(it.key()));
-        ui.workSizeTable->setItem(i, 0,
-                new QTableWidgetItem(QString::number(it.value())));
-        _workSizeData.append(QPointF(it.key(), it.value()));
-        ++i;
+        case FLOAT:
+            return "float";
+        case DOUBLE:
+            return "double";
+        case INTEGER:
+            return "int";
+        case HALF:
+            return "half";
     }
-    _workSizeCurve->setData(_workSizeData);
-    ui.workSizeTable->setVerticalHeaderLabels(header);
+}
 
-    _workSizeVector4Data.clear();
-    i = 0;
-    for (it = workSizeVector4Data.constBegin();
-            it != workSizeVector4Data.constEnd(); ++it)
-    {
-        _workSizeVector4Data.append(QPointF(it.key(), it.value()));
-        ui.workSizeTable->setItem(i, 1,
-                new QTableWidgetItem(QString::number(it.value())));
-        ++i;
-    }
-    _workSizeVector4Curve->setData(_workSizeVector4Data);
-
-    _dataData.clear();
-    header.clear();
-    i = 0;
-    for (it = dataData.constBegin(); it != dataData.constEnd(); ++it)
-    {
-        header.append(QString::number(it.key()));
-        ui.dataTable->setItem(i, 0,
-                new QTableWidgetItem(QString::number(it.value())));
-        _dataData.append(QPointF(it.key(), it.value()));
-        ++i;
-    }
-    _dataCurve->setData(_dataData);
-    ui.dataTable->setVerticalHeaderLabels(header);
-
-    _dataVector4Data.clear();
-    i = 0;
-    for (it = dataVector4Data.constBegin();
-            it != dataVector4Data.constEnd(); ++it)
-    {
-        ui.dataTable->setItem(i, 1,
-                new QTableWidgetItem(QString::number(it.value())));
-        _dataVector4Data.append(QPointF(it.key(), it.value()));
-        ++i;
-    }
-    _dataVector4Curve->setData(_dataVector4Data);
-
-    ui.dataFlopsPlot->replot();
-    ui.workSizeFlopsPlot->replot();
+int FlopsMainWidget::getDataTypeId()
+{
+    return _currentDataType;
 }
