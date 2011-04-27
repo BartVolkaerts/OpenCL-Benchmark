@@ -12,8 +12,8 @@ ReadWriteConfigWidget::ReadWriteConfigWidget(QWidget *parent) :
     connect(ui->checkBox, SIGNAL(toggled(bool)), this, SLOT(changeCaptureDevice(bool)));
     connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(getFile()));
 
-    ui->lineEdit->setEnabled(false);
     ui->copyButton->setChecked(true);
+    ui->label_4->setHidden(true);
 }
 
 ReadWriteConfigWidget::~ReadWriteConfigWidget()
@@ -24,7 +24,7 @@ ReadWriteConfigWidget::~ReadWriteConfigWidget()
 void ReadWriteConfigWidget::changeCaptureDevice(bool state)
 {
     if (state==true)
-        ui->lineEdit->setText("");
+        ui->label_4->setHidden(true);
     emit changedevice(state);
 }
 
@@ -34,8 +34,14 @@ void ReadWriteConfigWidget::getFile()
          tr("Open Image"), "/home/", tr(""));
     if (temp != "")
     {
-        ui->lineEdit->setText(temp);
-        emit fileName(ui->lineEdit->text());
+        ui->label_4->setHidden(false);
+        QRegExp regexp("([^/]*)$");
+        regexp.indexIn(temp);
+        QString string;
+        string.append("Selected file: ");
+        string.append(regexp.cap());
+        ui->label_4->setText(string);
+        emit fileName(temp);
     }
 }
 

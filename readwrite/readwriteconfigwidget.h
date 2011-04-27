@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QFileDialog>
+#include <QRegExp>
 
 namespace Ui {
     class ReadWriteConfigWidget;
